@@ -19,8 +19,8 @@ class Tree
   string name;
   int type_and_permissions;
   string sha1;
-  set<Blob*> blobs;
-  set<Tree*> trees;
+  set<string> blobs_sha1;
+  set<string> trees_sha1;
 }
 
 class Commit
