@@ -1,25 +1,28 @@
+#include "serialize.h"
 #include "objects.h"
 #include <string>
 #include <ctime>
 #include <set>
-#include "cereal/types/set.hpp"
+#include "cereal/types/vector.hpp"
 #include "cereal/types/memory.hpp"
 #include "cereal/archives/binary.hpp"
 #include <fstream>
 using namespace std;
 
-void save_blob(Blob, path_with_file_name)
+void save_blob(Blob bl, string HOME)
 {
-    std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
+    string path = HOME + "/.vcs/objects/" + bl.sha1;
+    ofstream os(path, ios::binary | ios::out);
     cereal::BinaryOutputArchive archive( os );
     Blob myData;
     archive( myData );
     os.close();
 }
 
-Blob& load_blob(Blob, path)
+Blob& load_blob(string sha, string HOME)
 {
-    std::ifstream is(path, std::ios::binary| std::ios::in);
+    string path = HOME + "/.vcs/objects/" + sha;
+    ifstream is(path, ios::binary| ios::in);
     cereal::BinaryInputArchive iarchive( is );
     Blob idata;
     iarchive(idata);
@@ -27,7 +30,7 @@ Blob& load_blob(Blob, path)
     return idata;
 }
 
-void save_tree(Tree)
+/*void save_tree(Tree)
 {
     std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
@@ -63,4 +66,4 @@ Commit& load_commit(Commit)
     iarchive(idata);
     is.close();
     return idata;
-}
+}*/

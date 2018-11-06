@@ -1,19 +1,20 @@
 #include "objects.h"
-#include <iostream>
-#include <string>
+#include "serialize.h"
 #include <fstream>
 #include <streambuf>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <openssl/sha.h>
-#include <bits/stdc++.h>
+#include <vector>
+#include <iostream>
+#include <dirent.h>
 using namespace std;
 
-vector<string> index;
+vector< pair<string, string> > INDEX;  // pair of path and all stuff (to sort)
+string HOME;
 
-string get_blob_sha1(Blob bl, string path)
+void get_blob_sha1(Blob bl)
 {
   // get sha1 for :
     //  filename filesize nullcharacter content(bin)
@@ -21,24 +22,24 @@ string get_blob_sha1(Blob bl, string path)
   //**added by sanket on 6 nov start
     //string str ="raju";
   char *text;
-  text=&bl.data[0];
+  text = &bl.data[0];
   unsigned char hash[SHA_DIGEST_LENGTH];
-  SHA1((unsigned char *)text, str.size(), hash);
+  SHA1((unsigned char *)text, bl.data.size(), hash);
   char sha1string[SHA_DIGEST_LENGTH*2 +1];
   for(int i = 0; i < SHA_DIGEST_LENGTH; ++i)
   {
-        sprintf(&sha1string[i*2], "%02x", (unsigned int)hash[i]);
+    sprintf(&sha1string[i*2], "%02x", (unsigned int)hash[i]);
   }
   //printf("string: %s \n", sha1string);
-  return sha1string;
+  string sha(sha1string);
+  bl.sha1 = sha;
   //**added by sanket on 6 nov end
 }
 
-string get_tree_sha1(Tree tr, string path)
+/*string get_tree_sha1(Tree tr, string path)
 {
-  // get sha1 for :
-    //  dirname dirsize nullcharacter content(bin)
-}
+
+}*/
 
 int set_type_and_permissions(string type, int permissions)
 {
@@ -50,15 +51,8 @@ int set_type_and_permissions(string type, int permissions)
     type_and_permissions = (1<<14) | type_and_permissions;
   else if(type == "commit")
     type_and_permissions = (1<<13) | type_and_permissions;
-}
 
-void add(vector<string> sources)
-{
-  index = "";
-  for(int i = 0; i < sources.size())
-  {
-    build_index(sources[i]);
-  }
+  return type_and_permissions;
 }
 
 void build_index(string source)
@@ -79,10 +73,11 @@ void build_index(string source)
     //Tree tr = new Tree(dir_name, type_and_permissions);
 
     DIR *dr = opendir(dir_path_c);
+    struct dirent *de;
 
     if (dr == NULL)      // opendir returns NULL if couldn't open directory
     {
-      printf("Could not open directory " + d_name);
+      cout << "Could not open directory " << dir_name;
       return;
     }
 
@@ -121,30 +116,37 @@ void build_index(string source)
     int k = source.find_last_of("/");
     string file_name = source.substr(k+1, source.size()-1);
 
-    int type_and_permissions = set_time_and_permissions("blob", srt.st_mode);
-
-    Blob bl = new Blob(file_name, type_and_permissions);
+    //int type_and_permissions = set_time_and_permissions("blob", srt.st_mode);
+int type_and_permissions = srt.st_mode;
+    Blob bl(file_name, type_and_permissions);
 
     string txt;
     ifstream file(source);
     string str((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     bl.data = str;
-    bl.sha1 = get_blob_sha1(bl);
 
-    save_blob(bl);
+    get_blob_sha1(bl);
 
-    string index_entry = bitset<8>(n).to_string() + " ";
+    save_blob(bl, HOME);
+
+    string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
     index_entry += bl.sha1 + " ";
     index_entry += source + "\t";  //save only path from vcs root
 
     unsigned long last_modified = (unsigned long)srt.st_mtime;
     index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    index.push_back(index_entry);
+    INDEX.push_back( make_pair(source, index_entry) );
   }
 }
 
-int main()
+void add(vector<string> sources, string home)
 {
-  add(".");
+  home = HOME;
+  for(int i = 0; i < sources.size(); i++)
+  {
+    build_index(sources[i]);
+  }
+  sort(INDEX.begin(), INDEX.end());
+  // store index.second to INDEX file
 }

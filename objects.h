@@ -1,9 +1,8 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include <string>
 #include <ctime>
-#include <set>
+#include <bits/stdc++.h>
 using namespace std;
 
 /* Type and permissions format:
@@ -13,12 +12,15 @@ using namespace std;
 
 class Blob
 {
+public:
   string name;
   int type_and_permissions;
   string sha1;
   string data;
 
-  Blob(int Name, int Type_and_permissions)
+  Blob() {}
+
+  Blob(string Name, int Type_and_permissions)
   {
     name = Name;
     type_and_permissions = Type_and_permissions;
@@ -27,12 +29,13 @@ class Blob
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(name, type_and_permissions, sha1, bin_data);
+    ar(name, type_and_permissions, sha1, data);
   }
-}
+};
 
 class Tree
 {
+public:
   string name;
   int type_and_permissions;
   string sha1;
@@ -49,37 +52,38 @@ class Tree
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(name, type_and_permissions, sha1, sha1_pointers);
+    ar(name, type_and_permissions, sha1, sha1_pointers, pointer_paths, pointer_perm);
   }
-}
+};
 
 class Commit
 {
+public:
   string sha1;
   string tree_hash;
   string parent_hash;
   string author;
   string committer;
-  time_c timestamp;
+  time_t timestamp;
   string message;
 
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(sha1, tree_hash, parent_hash, author, committer, date, message);
+    ar(sha1, tree_hash, parent_hash, author, committer, timestamp, message);
   }
-}
+};
 
-void set_time_and_permissions();
+int set_time_and_permissions(int, int);
 
-void save_blob(Blob);
+// void save_blob(Blob);
+//
+// void load_blob(Blob);
+//
+// void save_tree(Tree);
+// void load_tree(Tree);
+//
+// void save_commit(Commit);
+// void load_commit(Commit);
 
-void load_blob(Blob);
-
-void save_tree(Tree);
-void load_tree(Tree);
-
-void save_commit(Commit);
-void load_commit(Commit);
-
-#endif OBJECTS_H
+#endif
