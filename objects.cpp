@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <openssl/sha.h>
+#include <bits/stdc++.h>
 using namespace std;
 
 vector<string> index;
@@ -15,6 +17,21 @@ string get_blob_sha1(Blob bl, string path)
 {
   // get sha1 for :
     //  filename filesize nullcharacter content(bin)
+
+  //**added by sanket on 6 nov start
+    //string str ="raju";
+  char *text;
+  text=&bl.data[0];
+  unsigned char hash[SHA_DIGEST_LENGTH];
+  SHA1((unsigned char *)text, str.size(), hash);
+  char sha1string[SHA_DIGEST_LENGTH*2 +1];
+  for(int i = 0; i < SHA_DIGEST_LENGTH; ++i)
+  {
+        sprintf(&sha1string[i*2], "%02x", (unsigned int)hash[i]);
+  }
+  //printf("string: %s \n", sha1string);
+  return sha1string;
+  //**added by sanket on 6 nov end
 }
 
 string get_tree_sha1(Tree tr, string path)
