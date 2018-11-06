@@ -1,4 +1,4 @@
-#include"objects.h"
+#include "objects.h"
 #include <string>
 #include <ctime>
 #include <set>
@@ -8,7 +8,7 @@
 #include <fstream>
 using namespace std;
 
-void save_blob(Blob,path_with_file_name)
+void save_blob(Blob, path_with_file_name)
 {
     std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
@@ -17,7 +17,7 @@ void save_blob(Blob,path_with_file_name)
     os.close();
 }
 
-Blob& load_blob(Blob,path)
+Blob& load_blob(Blob, path)
 {
     std::ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );

@@ -1,7 +1,15 @@
 #include "objects.h"
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <streambuf>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 using namespace std;
+
+vector<string> index;
 
 string get_blob_sha1(Blob bl, string path)
 {
@@ -27,7 +35,16 @@ int set_type_and_permissions(string type, int permissions)
     type_and_permissions = (1<<13) | type_and_permissions;
 }
 
-void add(string source)
+void add(vector<string> sources)
+{
+  index = "";
+  for(int i = 0; i < sources.size())
+  {
+    build_index(sources[i]);
+  }
+}
+
+void build_index(string source)
 {
   struct stat srt;
   stat(&source[0], &srt);
@@ -40,7 +57,7 @@ void add(string source)
 
     const char* dir_path_c = &source[0];
 
-    int type_and_permissions = set_time_and_permissions("tree", srt.st_mode);
+    //int type_and_permissions = set_time_and_permissions("tree", srt.st_mode);
 
     //Tree tr = new Tree(dir_name, type_and_permissions);
 
@@ -75,7 +92,7 @@ void add(string source)
       if(files_wo_path[i].compare("..") && files_wo_path[i].compare(".")
          && files_wo_path[i].compare(".vcs"))
       {
-        add(files[i]);
+        build_index(files[i]);
       }
     }
 
@@ -91,8 +108,22 @@ void add(string source)
 
     Blob bl = new Blob(file_name, type_and_permissions);
 
+    string txt;
+    ifstream file(source);
+    string str((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    bl.data = str;
     bl.sha1 = get_blob_sha1(bl);
-    return bl.sha1;
+
+    save_blob(bl);
+
+    string index_entry = bitset<8>(n).to_string() + " ";
+    index_entry += bl.sha1 + " ";
+    index_entry += source + "\t";  //save only path from vcs root
+
+    unsigned long last_modified = (unsigned long)srt.st_mtime;
+    index_entry += to_string(last_modified); //also store file versions in three places (if required later)
+
+    index.push_back(index_entry);
   }
 }
 

@@ -37,7 +37,7 @@ class Tree
   int type_and_permissions;
   string sha1;
   vector<string> sha1_pointers;
-  vector<string> pointer_paths;
+  vector<string> pointer_paths; //including filename
   vector<int> pointer_perm;
 
   Tree(int Name, int Type_and_permissions)
