@@ -23,6 +23,12 @@ class Blob
     name = Name;
     type_and_permissions = Type_and_permissions;
   }
+
+  template <class Archive>
+  void serialize( Archive & ar )
+  {
+    ar(name, type_and_permissions, sha1, bin_data);
+  }
 }
 
 class Tree
@@ -39,6 +45,12 @@ class Tree
     name = Name;
     type_and_permissions = Type_and_permissions;
   }
+
+  template <class Archive>
+  void serialize( Archive & ar )
+  {
+    ar(name, type_and_permissions, sha1, sha1_pointers);
+  }
 }
 
 class Commit
@@ -50,17 +62,24 @@ class Commit
   string committer;
   time_c timestamp;
   string message;
+
+  template <class Archive>
+  void serialize( Archive & ar )
+  {
+    ar(sha1, tree_hash, parent_hash, author, committer, date, message);
+  }
 }
 
 void set_time_and_permissions();
 
-/*void save_blob(Blob);
+void save_blob(Blob);
+
 void load_blob(Blob);
 
 void save_tree(Tree);
 void load_tree(Tree);
 
 void save_commit(Commit);
-void load_commit(Commit);*/
+void load_commit(Commit);
 
 #endif OBJECTS_H
