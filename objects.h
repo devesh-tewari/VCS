@@ -16,9 +16,9 @@ class Blob
   string name;
   int type_and_permissions;
   string sha1;
-  string bin_data;
+  string data;
 
-  Tree(int Name, int Type_and_permissions)
+  Blob(int Name, int Type_and_permissions)
   {
     name = Name;
     type_and_permissions = Type_and_permissions;
@@ -30,7 +30,9 @@ class Tree
   string name;
   int type_and_permissions;
   string sha1;
-  set<string> sha1_pointers;
+  vector<string> sha1_pointers;
+  vector<string> pointer_paths;
+  vector<int> pointer_perm;
 
   Tree(int Name, int Type_and_permissions)
   {
@@ -41,11 +43,12 @@ class Tree
 
 class Commit
 {
+  string sha1;
   string tree_hash;
   string parent_hash;
   string author;
   string committer;
-  time_c date;
+  time_c timestamp;
   string message;
 }
 

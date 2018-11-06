@@ -15,7 +15,7 @@ string get_tree_sha1(Tree tr, string path)
     //  dirname dirsize nullcharacter content(bin)
 }
 
-int set_time_and_permissions(string type, int permissions)
+int set_type_and_permissions(string type, int permissions)
 {
   int type_and_permissions = 511 & permissions;  /* Extracting nine permission
                                                     bits */
@@ -27,7 +27,7 @@ int set_time_and_permissions(string type, int permissions)
     type_and_permissions = (1<<13) | type_and_permissions;
 }
 
-string add(string source)
+void add(string source)
 {
   struct stat srt;
   stat(&source[0], &srt);
@@ -35,8 +35,6 @@ string add(string source)
 
   if(S_ISDIR(srt.st_mode))    //check if folder, if so build tree
   {
-    obj_type = "tree";
-
     int k = source.find_last_of("/");
     string dir_name = source.substr(k+1, source.size()-1);
 
@@ -44,7 +42,7 @@ string add(string source)
 
     int type_and_permissions = set_time_and_permissions("tree", srt.st_mode);
 
-    Tree tr = new Tree(dir_name, type_and_permissions);
+    //Tree tr = new Tree(dir_name, type_and_permissions);
 
     DIR *dr = opendir(dir_path_c);
 
@@ -77,20 +75,19 @@ string add(string source)
       if(files_wo_path[i].compare("..") && files_wo_path[i].compare(".")
          && files_wo_path[i].compare(".vcs"))
       {
-        string sha1 = add(files[i]);
-        tr.sha1_pointers.insert(sha1);
+        add(files[i]);
       }
     }
 
-    tr.sha1 = get_tree_sha1(tr);
-    return tr.sha1;
+    //tr.sha1 = get_tree_sha1(tr);
+    //return tr.sha1;
   }
   else   //if its a file, build blob
   {
     int k = source.find_last_of("/");
     string file_name = source.substr(k+1, source.size()-1);
 
-    int type_and_permissions = set_time_and_permissions("tree", srt.st_mode);
+    int type_and_permissions = set_time_and_permissions("blob", srt.st_mode);
 
     Blob bl = new Blob(file_name, type_and_permissions);
 
