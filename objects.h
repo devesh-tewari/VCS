@@ -75,6 +75,7 @@ public:
 };
 
 int set_time_and_permissions(int, int);
+void add(vector<string>, string);
 
 // void save_blob(Blob);
 //

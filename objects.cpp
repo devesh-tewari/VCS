@@ -56,7 +56,7 @@ int set_type_and_permissions(string type, int permissions)
 }
 
 void build_index(string source)
-{
+{cout<<source<<endl;
   struct stat srt;
   stat(&source[0], &srt);
   string obj_type;
@@ -119,17 +119,20 @@ void build_index(string source)
     //int type_and_permissions = set_time_and_permissions("blob", srt.st_mode);
 int type_and_permissions = srt.st_mode;
     Blob bl(file_name, type_and_permissions);
-
+//cout<<"here"<<" ";
     string txt;
     ifstream file(source);
     string str((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     bl.data = str;
-
+//cout<<"here"<<endl;
+cout<<"here"<<" ";
     get_blob_sha1(bl);
-
+cout<<"here";
     save_blob(bl, HOME);
-
+cout<<"here"<<endl;
+//cout<<"here"<<" ";
     string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
+//cout<<"here"<<endl;
     index_entry += bl.sha1 + " ";
     index_entry += source + "\t";  //save only path from vcs root
 
@@ -142,11 +145,15 @@ int type_and_permissions = srt.st_mode;
 
 void add(vector<string> sources, string home)
 {
-  home = HOME;
+  HOME = home;
   for(int i = 0; i < sources.size(); i++)
   {
     build_index(sources[i]);
   }
   sort(INDEX.begin(), INDEX.end());
   // store index.second to INDEX file
+  for(int i = 0; i < INDEX.size(); i++)
+  {
+    cout<<INDEX[i].second<<endl;
+  }
 }

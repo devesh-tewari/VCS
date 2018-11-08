@@ -9,8 +9,7 @@ using namespace std;
 
 void init(string HOME)
 {
-  //char cwd[PATH_MAX];
-  getcwd(&HOME[0], PATH_MAX);
+  chdir(&HOME[0]);
 
   if (mkdir("./.vcs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
   {
@@ -30,7 +29,7 @@ void init(string HOME)
 
   chdir("..");
 
-  cout<<"Initialized empty VCS repository/n";
+  cout<<"Initialized empty VCS repository.\n";
 }
 //
 // int main()

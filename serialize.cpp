@@ -12,7 +12,7 @@ using namespace std;
 void save_blob(Blob bl, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + bl.sha1;
-    ofstream os(path, ios::binary | ios::out);
+    ofstream os(path, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
     Blob myData;
     archive( myData );
@@ -22,7 +22,7 @@ void save_blob(Blob bl, string HOME)
 Blob& load_blob(string sha, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + sha;
-    ifstream is(path, ios::binary| ios::in);
+    ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );
     Blob idata;
     iarchive(idata);
