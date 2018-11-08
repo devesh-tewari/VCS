@@ -130,7 +130,7 @@ int type_and_permissions = srt.st_mode;
 cout<<"here"<<" ";
     get_blob_sha1(bl);
 cout<<"here";
-    //save_blob(bl, HOME);
+    save_blob(bl, HOME);
 cout<<"here"<<endl;
 //cout<<"here"<<" ";
     string index_entry = bitset<8>(type_and_permissions).to_string() + " ";

@@ -2,6 +2,7 @@
 #include "objects.h"
 #include <string>
 #include <ctime>
+#include <vector>
 #include <set>
 #include "cereal/types/vector.hpp"
 #include "cereal/types/memory.hpp"
@@ -11,11 +12,13 @@ using namespace std;
 
 void save_blob(Blob bl, string HOME)
 {
-    string path = HOME + "/.vcs/objects/" + bl.sha1;
-    ofstream os(path, std::ios::binary | std::ios::out);
+     string path1 = HOME + "/.vcs/objects/" + bl.sha1;
+     cout<<path1<<endl;
+    string path="/home/shubham/Desktop/a.cereal";
+    ofstream os(path1, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
-    Blob myData;
-    archive( myData );
+    // Blob myData;
+    archive( bl );
     os.close();
 }
 
