@@ -129,9 +129,15 @@ int type_and_permissions = srt.st_mode;
 //cout<<"here"<<endl;
 //cout<<"here"<<" ";
     get_blob_sha1(bl);
+<<<<<<< HEAD
 //cout<<"here";
     save_blob(bl, HOME);
 //cout<<"here"<<endl;
+=======
+cout<<"here";
+    save_blob(bl, HOME);
+cout<<"here"<<endl;
+>>>>>>> 3c4cee69ec1ef18edc5cfc7a5fb14f5e375f33e9
 //cout<<"here"<<" ";
     IndexEntry entry;
     entry.type_and_permissions = type_and_permissions;

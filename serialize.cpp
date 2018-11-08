@@ -14,8 +14,7 @@ void save_blob(Blob bl, string HOME)
     string path = HOME + "/.vcs/objects/" + bl.sha1;
     ofstream os(path, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
-    Blob myData;
-    archive( myData );
+    archive( bl );
     os.close();
 }
 
@@ -30,12 +29,11 @@ Blob& load_blob(string sha, string HOME)
     return idata;
 }
 
-/*void save_tree(Tree)
+/*void save_tree(Tree tr, string HOME)
 {
     std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
-    Blob myData;
-    archive( myData );
+    archive( tr );
     os.close();
 }
 
@@ -49,12 +47,11 @@ Tree& load_tree(Tree)
     return idata;
 }
 
-void save_commit(Commit)
+void save_commit(Commit cm, string HOME)
 {
     std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
-    Blob myData;
-    archive( myData );
+    archive( cm );
     os.close();
 }
 
