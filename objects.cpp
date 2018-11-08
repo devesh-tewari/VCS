@@ -14,7 +14,7 @@ using namespace std;
 vector< pair<string, string> > INDEX;  // pair of path and all stuff (to sort)
 string HOME;
 
-void get_blob_sha1(Blob bl)
+void get_blob_sha1(Blob &bl)
 {
   // get sha1 for :
     //  filename filesize nullcharacter content(bin)
@@ -33,6 +33,7 @@ void get_blob_sha1(Blob bl)
   //printf("string: %s \n", sha1string);
   string sha(sha1string);
   bl.sha1 = sha;
+  cout<<"inside getBlob: "<<sha<<endl<<sha1string<<endl;
   //**added by sanket on 6 nov end
 }
 
@@ -124,11 +125,12 @@ int type_and_permissions = srt.st_mode;
     ifstream file(source);
     string str((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     bl.data = str;
+    cout<<"data: "<<bl.data<<"!"<<endl;
 //cout<<"here"<<endl;
 cout<<"here"<<" ";
     get_blob_sha1(bl);
 cout<<"here";
-    save_blob(bl, HOME);
+    //save_blob(bl, HOME);
 cout<<"here"<<endl;
 //cout<<"here"<<" ";
     string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
