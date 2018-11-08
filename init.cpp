@@ -11,13 +11,16 @@ void init(string HOME)
 {
   chdir(&HOME[0]);
 
-  if (mkdir("./.vcs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
+  string init_at = HOME + "/.vcs";
+
+  if (mkdir(&init_at[0], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
   {
-      cout<<"Cannot initialize VCS repository. Directory is already VCS initialized.\n";
+      cout << "Cannot initialize VCS repository. ";
+      cout << "Directory is already VCS initialized.\n";
       return;
   }
 
-  chdir("./.vcs");
+  chdir(&init_at[0]);
 
   ofstream config ("config");
   ofstream HEAD ("HEAD");
@@ -27,7 +30,7 @@ void init(string HOME)
   mkdir("objects", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("refs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-  chdir("..");
+  chdir(&HOME[0]);
 
   cout<<"Initialized empty VCS repository.\n";
 }

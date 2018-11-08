@@ -33,7 +33,7 @@ void get_blob_sha1(Blob &bl)
   //printf("string: %s \n", sha1string);
   string sha(sha1string);
   bl.sha1 = sha;
-  cout<<"inside getBlob: "<<sha<<endl<<sha1string<<endl;
+  //cout<<"inside getBlob: "<<sha<<endl<<sha1string<<endl;
   //**added by sanket on 6 nov end
 }
 
@@ -56,8 +56,8 @@ int set_type_and_permissions(string type, int permissions)
   return type_and_permissions;
 }
 
-void build_index(string source)
-{cout<<source<<endl;
+void build_index(string source, Index &INDEX)
+{//cout<<source<<endl;
   struct stat srt;
   stat(&source[0], &srt);
   string obj_type;
@@ -105,7 +105,7 @@ void build_index(string source)
       if(files_wo_path[i].compare("..") && files_wo_path[i].compare(".")
          && files_wo_path[i].compare(".vcs"))
       {
-        build_index(files[i]);
+        build_index(files[i], INDEX);
       }
     }
 
@@ -125,37 +125,61 @@ int type_and_permissions = srt.st_mode;
     ifstream file(source);
     string str((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     bl.data = str;
-    cout<<"data: "<<bl.data<<"!"<<endl;
+    //cout<<"data: "<<bl.data<<"!"<<endl;
 //cout<<"here"<<endl;
-cout<<"here"<<" ";
-    get_blob_sha1(bl);
-cout<<"here";
-    //save_blob(bl, HOME);
-cout<<"here"<<endl;
 //cout<<"here"<<" ";
-    string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
+    get_blob_sha1(bl);
+//cout<<"here";
+    save_blob(bl, HOME);
 //cout<<"here"<<endl;
-    index_entry += bl.sha1 + " ";
-    index_entry += source + "\t";  //save only path from vcs root
+//cout<<"here"<<" ";
+    IndexEntry entry;
+    entry.type_and_permissions = type_and_permissions;
+    entry.sha1 = bl.sha1;
+    entry.path = source;
+    //string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
+//cout<<"here"<<endl;
+    //index_entry += bl.sha1 + " ";
+    //index_entry += source + "\t";  //save only path from vcs root
+    entry.mtime = (unsigned long)srt.st_mtime;
+    //unsigned long last_modified = (unsigned long)srt.st_mtime;
+    //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    unsigned long last_modified = (unsigned long)srt.st_mtime;
-    index_entry += to_string(last_modified); //also store file versions in three places (if required later)
-
-    INDEX.push_back( make_pair(source, index_entry) );
+    INDEX.entries.push_back( entry );
   }
+}
+
+bool cmp(IndexEntry e1, IndexEntry e2)
+{
+  if(strcmp( &e1.path[0], &e2.path[0] ) < 0)
+    return true;
+  return false;
 }
 
 void add(vector<string> sources, string home)
 {
   HOME = home;
+  Index INDEX;
+  struct stat st;
+  string index_path = HOME + "/INDEX";
+  /*if(stat(file, &st) == 0)
+  {
+    load_index(HOME);
+  }*/
+
   for(int i = 0; i < sources.size(); i++)
   {
-    build_index(sources[i]);
+    build_index(sources[i], INDEX);  //modify sources to be from HOME only
   }
-  sort(INDEX.begin(), INDEX.end());
+
+  sort(INDEX.entries.begin(), INDEX.entries.end(), cmp);
   // store index.second to INDEX file
-  for(int i = 0; i < INDEX.size(); i++)
+
+  for(int i = 0; i < INDEX.entries.size(); i++)
   {
-    cout<<INDEX[i].second<<endl;
+    IndexEntry e = INDEX.entries[i];
+    cout << e.path << " " << e.sha1 << endl;
   }
+
+  //save_index(INDEX, HOME);
 }

@@ -74,6 +74,28 @@ public:
   }
 };
 
+class IndexEntry
+{
+public:
+  int type_and_permissions;
+  string sha1;
+  string path;
+  unsigned long int mtime;
+
+  IndexEntry() {}
+};
+
+class Index
+{
+public:
+  vector< IndexEntry > entries;
+
+  Index()
+  {
+    entries.clear();
+  }
+};
+
 int set_time_and_permissions(int, int);
 void add(vector<string>, string);
 

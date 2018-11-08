@@ -2,7 +2,7 @@
 #include "objects.h"
 #include <string>
 #include <ctime>
-#include <set>
+#include <vector>
 #include "cereal/types/vector.hpp"
 #include "cereal/types/memory.hpp"
 #include "cereal/archives/binary.hpp"
@@ -67,3 +67,16 @@ Commit& load_commit(Commit)
     is.close();
     return idata;
 }*/
+/*
+Index& load_index(string HOME)
+{
+  string path = HOME + "/INDEX";
+
+}
+
+void save_index(Index INDEX, string HOME)
+{
+  string path = HOME + "/INDEX";
+
+}
+*/
