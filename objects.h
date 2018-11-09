@@ -94,6 +94,13 @@ public:
   {
     entries.clear();
   }
+
+  template <class Archive>
+  void serialize( Archive & ar )
+  {
+    ar(entries);
+  }
+
 };
 
 int set_time_and_permissions(int, int);
