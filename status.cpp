@@ -1,5 +1,6 @@
 #include "objects.h"
 #include "status.h"
+#include "serialize.h"
 #include <unordered_map>
 #include <vector>
 #include <iostream>
@@ -80,11 +81,11 @@ void status(string HOME)
 
   bool add = false;
   bool commit = false;
-  /*if(stat(file, &st) == 0)
+  if(stat(&HOME[0], &st) == 0)
   {
     add = true;
-    load_index(INDEX, HOME);
-  }*/
+    INDEX = load_index(HOME);
+  }
 
   /* check for commit from HEAD */
 

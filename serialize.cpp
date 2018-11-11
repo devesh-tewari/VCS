@@ -28,8 +28,8 @@ Blob& load_blob(string sha, string HOME)
     is.close();
     return idata;
 }
-
-/*void save_tree(Tree tr, string HOME)
+/*
+void save_tree(Tree tr, string HOME)
 {
     std::ofstream os(path_with_file_name, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
@@ -41,7 +41,7 @@ Tree& load_tree(Tree)
 {
     std::ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );
-    Blob idata;
+    Tree idata;
     iarchive(idata);
     is.close();
     return idata;
@@ -55,25 +55,33 @@ void save_commit(Commit cm, string HOME)
     os.close();
 }
 
-Commit& load_commit(Commit)
+Commit& load_commit(string HOME)
 {
+    string path="Commit file Path daalna"
     std::ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );
-    Blob idata;
-    iarchive(idata);
+    Commit idata;
+    iarchive( idata );
     is.close();
     return idata;
 }*/
-/*
-Index& load_index(Index INDEX, string HOME)
-{
-  string path = HOME + "/INDEX";
-
-}
 
 void save_index(Index INDEX, string HOME)
 {
-  string path = HOME + "/INDEX";
-
+    string path = HOME + "/INDEX";
+    std::ofstream os(path, std::ios::binary | std::ios::out);
+    cereal::BinaryOutputArchive archive( os );
+    archive( INDEX );
+    os.close();
 }
-*/
+
+Index& load_index(string HOME)
+{
+    string path = HOME + "/INDEX";
+    std::ifstream is(path, std::ios::binary| std::ios::in);
+    cereal::BinaryInputArchive iarchive( is );
+    Index idata;
+    iarchive( idata );
+    is.close();
+    return idata;
+}
