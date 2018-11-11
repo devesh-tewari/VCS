@@ -83,6 +83,13 @@ public:
   unsigned long int mtime;
 
   IndexEntry() {}
+
+template <class Archive>
+  void serialize( Archive & ar )
+  {
+    ar(type_and_permissions, sha1, path, mtime);
+  }
+
 };
 
 class Index
@@ -102,6 +109,7 @@ public:
   }
 
 };
+
 
 int set_time_and_permissions(int, int);
 void add(vector<string>, string);
