@@ -129,15 +129,15 @@ int type_and_permissions = srt.st_mode;
 //cout<<"here"<<endl;
 //cout<<"here"<<" ";
     get_blob_sha1(bl);
-<<<<<<< HEAD
+//<<<<<<< HEAD
 //cout<<"here";
     save_blob(bl, HOME);
 //cout<<"here"<<endl;
-=======
+//=======
 cout<<"here";
     save_blob(bl, HOME);
 cout<<"here"<<endl;
->>>>>>> 3c4cee69ec1ef18edc5cfc7a5fb14f5e375f33e9
+//>>>>>>> 3c4cee69ec1ef18edc5cfc7a5fb14f5e375f33e9
 //cout<<"here"<<" ";
     IndexEntry entry;
     entry.type_and_permissions = type_and_permissions;
@@ -170,7 +170,7 @@ void add(vector<string> sources, string home)
   string index_path = HOME + "/INDEX";
   /*if(stat(file, &st) == 0)
   {
-    load_index(HOME);
+    load_index(INDEX, HOME);
   }*/
 
   for(int i = 0; i < sources.size(); i++)

@@ -65,7 +65,7 @@ Commit& load_commit(Commit)
     return idata;
 }*/
 /*
-Index& load_index(string HOME)
+Index& load_index(Index INDEX, string HOME)
 {
   string path = HOME + "/INDEX";
 
