@@ -56,6 +56,16 @@ int set_type_and_permissions(string type, int permissions)
   return type_and_permissions;
 }
 
+bool check_presence(string path, Index &INDEX)
+{
+  for(int i = 0; i < INDEX.entries.size(); i++)
+  {
+    if(INDEX.entries[i].path == path)
+      return true;
+  }
+  return false;
+}
+
 void build_index(string source, Index &INDEX)
 {//cout<<source<<endl;
   struct stat srt;
@@ -103,7 +113,8 @@ void build_index(string source, Index &INDEX)
     for(int i=0; i < no_of_files; i++)
     {
       if(files_wo_path[i].compare("..") && files_wo_path[i].compare(".")
-         && files_wo_path[i].compare(".vcs"))
+         && files_wo_path[i].compare(".vcs")
+         && files_wo_path[i].compare("INDEX"))
       {
         build_index(files[i], INDEX);
       }
@@ -134,9 +145,9 @@ int type_and_permissions = srt.st_mode;
     save_blob(bl, HOME);
 //cout<<"here"<<endl;
 //=======
-cout<<"here";
+//cout<<"here";
     save_blob(bl, HOME);
-cout<<"here"<<endl;
+//cout<<"here"<<endl;
 //>>>>>>> 3c4cee69ec1ef18edc5cfc7a5fb14f5e375f33e9
 //cout<<"here"<<" ";
     IndexEntry entry;
@@ -151,7 +162,8 @@ cout<<"here"<<endl;
     //unsigned long last_modified = (unsigned long)srt.st_mtime;
     //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    INDEX.entries.push_back( entry );
+    if( !check_presence(source, INDEX) )
+      INDEX.entries.push_back( entry );
   }
 }
 
@@ -167,14 +179,16 @@ void add(vector<string> sources, string home)
   HOME = home;
   Index INDEX;
   struct stat st;
-  string index_path = HOME + "/INDEX";
-  /*if(stat(file, &st) == 0)
+  string index_path = HOME + "/.vcs/INDEX";
+  if(stat(&index_path[0], &st) == 0)
   {
     load_index(INDEX, HOME);
-  }*/
+  }
 
+  string H;
   for(int i = 0; i < sources.size(); i++)
   {
+    //H =
     build_index(sources[i], INDEX);  //modify sources to be from HOME only
   }
 
@@ -184,8 +198,8 @@ void add(vector<string> sources, string home)
   for(int i = 0; i < INDEX.entries.size(); i++)
   {
     IndexEntry e = INDEX.entries[i];
-    cout << e.path << " " << e.sha1 << endl;
+    cout << e.path << "\t" << e.sha1 << " " << oct << e.type_and_permissions << "\t" << e.mtime << endl;
   }
 
-  //save_index(INDEX, HOME);
+  save_index(INDEX, HOME);
 }

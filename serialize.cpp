@@ -18,15 +18,13 @@ void save_blob(Blob bl, string HOME)
     os.close();
 }
 
-Blob& load_blob(string sha, string HOME)
+void load_blob(Blob &bl, string sha, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + sha;
     ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );
-    Blob idata;
-    iarchive(idata);
+    iarchive(bl);
     is.close();
-    return idata;
 }
 /*
 void save_tree(Tree tr, string HOME)
@@ -68,20 +66,18 @@ Commit& load_commit(string HOME)
 
 void save_index(Index INDEX, string HOME)
 {
-    string path = HOME + "/INDEX";
+    string path = HOME + "/.vcs/INDEX";
     std::ofstream os(path, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive archive( os );
     archive( INDEX );
     os.close();
 }
 
-Index& load_index(string HOME)
+void load_index(Index &INDEX, string HOME)
 {
-    string path = HOME + "/INDEX";
+    string path = HOME + "/.vcs/INDEX";
     std::ifstream is(path, std::ios::binary| std::ios::in);
     cereal::BinaryInputArchive iarchive( is );
-    Index idata;
-    iarchive( idata );
+    iarchive( INDEX );
     is.close();
-    return idata;
 }

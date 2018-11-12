@@ -6,9 +6,9 @@
 using namespace std;
 
 void save_blob(Blob, string);
-Blob& load_blob(string);
+void load_blob(Blob&, string, string);
 
 void save_index(Index, string);
-Index& load_index(string);
+void load_index(Index&, string);
 
 #endif

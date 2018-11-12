@@ -54,7 +54,8 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
     for(int i=0; i < no_of_files; i++)
     {
       if(files_wo_path[i].compare("..") && files_wo_path[i].compare(".")
-         && files_wo_path[i].compare(".vcs"))
+         && files_wo_path[i].compare(".vcs")
+         && files_wo_path[i].compare(".git"))
       {
         check_untracked_files(paths, files[i]);
       }
@@ -65,7 +66,9 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
   }
   else   //if its a file, build blob
   {
-    if(paths.find(source) == paths.end())
+    int k = source.find_last_of("/");
+    string file_name = source.substr(k+1, source.size()-1);
+    if(file_name.compare("INDEX") && paths.find(source) == paths.end())
     {
       cout << "Untracked File: " << source << endl;
     }
@@ -77,14 +80,16 @@ void status(string HOME)
   int i;
   Index INDEX;
   struct stat st;
-  string index_path = HOME + "/INDEX";
+  string index_path = HOME + "/.vcs/INDEX";
 
   bool add = false;
   bool commit = false;
-  if(stat(&HOME[0], &st) == 0)
+  if(stat(&index_path[0], &st) == 0)
   {
     add = true;
-    INDEX = load_index(HOME);
+    //cout<<"here"<<endl;
+    load_index(INDEX, HOME);
+    //cout<<"here"<<endl;
   }
 
   /* check for commit from HEAD */
