@@ -1,5 +1,6 @@
-#include "init.h"
 #include "objects.h"
+#include "init.h"
+#include "add.h"
 #include "status.h"
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -110,8 +110,8 @@ public:
 
 };
 
+void get_blob_sha1(Blob&);
 
 int set_time_and_permissions(int, int);
-void add(vector<string>, string);
 
 #endif
