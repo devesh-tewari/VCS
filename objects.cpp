@@ -153,6 +153,8 @@ int type_and_permissions = srt.st_mode;
     IndexEntry entry;
     entry.type_and_permissions = type_and_permissions;
     entry.sha1 = bl.sha1;
+    if(source.substr(0, 2) == "./")
+      source = source.substr(2, source.size()-2);
     entry.path = source;
     //string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
 //cout<<"here"<<endl;
@@ -188,7 +190,6 @@ void add(vector<string> sources, string home)
   string H;
   for(int i = 0; i < sources.size(); i++)
   {
-    //H =
     build_index(sources[i], INDEX);  //modify sources to be from HOME only
   }
 
