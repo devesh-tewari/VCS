@@ -36,12 +36,14 @@ public:
 class Tree
 {
 public:
-  string name;
+  string name; // used path instead including dirname
   int type_and_permissions;
   string sha1;
   vector<string> sha1_pointers;
   vector<string> pointer_paths; //including filename
-  vector<int> pointer_perm;
+  vector<string> pointer_perm;
+
+  Tree() {}
 
   Tree(int Name, int Type_and_permissions)
   {
@@ -60,17 +62,22 @@ class Commit
 {
 public:
   string sha1;
-  string tree_hash;
-  string parent_hash;
+  string tree_sha1;
+  string parent_sha1;
   string author;
   string committer;
   time_t timestamp;
   string message;
 
+  Commit()
+  {
+    this->timestamp = time(0);   // get time now
+  }
+
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(sha1, tree_hash, parent_hash, author, committer, timestamp, message);
+    ar(sha1, tree_sha1, parent_sha1, author, committer, timestamp, message);
   }
 };
 

@@ -2,6 +2,7 @@
 #include "init.h"
 #include "add.h"
 #include "status.h"
+#include "commit.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -102,6 +103,14 @@ cout << "add: " << add_file << endl;
   {
 cout<<endl<<HOME<<endl;
     status(HOME);
+
+    return 0;
+  }
+
+  if(strcmp(argv[1], "commit") == 0)
+  {
+//cout<<endl<<HOME<<endl;
+    commit(HOME);
 
     return 0;
   }
