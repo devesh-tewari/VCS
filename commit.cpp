@@ -17,22 +17,6 @@ bool sortinrev(const pair<int,string> &a,
        return (a.first > b.first);
 }
 
-string get_tree_sha1(string str)
-{
-    char *text;
-    text=&str[0];
-    unsigned char hash[SHA_DIGEST_LENGTH];
-
-    SHA1((unsigned char *)text, str.size(), hash);
-
-    char sha1string[SHA_DIGEST_LENGTH*2 +1];
-    for(int i = 0; i < SHA_DIGEST_LENGTH; ++i)
-    {
-        sprintf(&sha1string[i*2], "%02x", (unsigned int)hash[i]);
-    }
-    return sha1string;
-}
-
 unordered_map<string, string> umap;
 vector< pair <int,string> > depth;
 
@@ -74,7 +58,7 @@ string build_tree(Index &INDEX, string HOME)
         {
             add_to_map(dir_name, remaining_part, INDEX.entries[i], temp_depth);
         }
-	    else
+	      else
         {
             umap[dir_name] = "dummy";
             depth.push_back( make_pair(temp_depth, dir_name) );
@@ -99,7 +83,7 @@ string build_tree(Index &INDEX, string HOME)
         tree_obj_data = tree_obj_data.substr(5, tree_obj_data.size() - 5);  //dummy removed
         //cout << tree_obj_data << "\n";
 
-        tr.sha1 = get_tree_sha1(tree_obj_data);
+        tr.sha1 = get_string_sha1(tree_obj_data);
         tr.name = depth[i].second;
 
         struct stat st;
@@ -125,8 +109,22 @@ string build_tree(Index &INDEX, string HOME)
             vector<string> results(istream_iterator<string>{iss2},
                                    istream_iterator<string>());
             tr.pointer_perm.push_back( results[0] );
-            tr.sha1_pointers.push_back( results[1] );
-            tr.pointer_paths.push_back( results[2] );
+            tr.sha1_pointers.push_back( results[2] );
+            tr.pointer_paths.push_back( results[3] );
+
+            if(results[1] == "blob")
+            {
+              tr.type.push_back(false);
+              long int mtime = atol(results[4].c_str());
+              cout << mtime << endl;
+              tr.mtime.push_back( (long int)mtime );
+              cout << tr.mtime.size() << endl;
+            }
+            else
+            {
+              tr.type.push_back(true);
+              tr.mtime.push_back( 0 );
+            }
         }
 
         cout << tree_obj_data << endl;
@@ -155,10 +153,12 @@ string build_tree(Index &INDEX, string HOME)
         string parent = depth[i].second.substr(0, k);
         umap[parent] = umap[parent]
                        + to_string(tr.type_and_permissions) + " "
+                       + "tree "
                        + tr.sha1 + " " + depth[i].second
                        + "\n";
 
         //depth.erase(depth.begin());
+        cout << tr.mtime.size() << endl;
         save_tree(tr, HOME);
 
         ret_val = tr.sha1;
@@ -192,8 +192,9 @@ void add_to_map(string prev_path, string current_path, IndexEntry& entry, int cu
       {
           umap[prev_path] = umap[prev_path]
                             + to_string(entry.type_and_permissions) + " "
+                            + "blob "
                             + entry.sha1 + " " + prev_path + "/" + current_path
-                            + "\n";
+                            + " " + to_string(entry.mtime) + "\n";
       }
 }
 
@@ -216,7 +217,32 @@ void commit(string HOME)
 
   Commit cm;
   cm.tree_sha1 = build_tree(INDEX, HOME);
-  tm* ctm = localtime(&cm.timestamp);
-  cout << asctime(ctm);
-  //cout << tree_sha;
+  tm* cm_time = localtime(&cm.timestamp);
+  //cout << asctime(cm_time) << endl;
+
+  ifstream head (".vcs/HEAD");
+  string head_str;
+  getline(head, head_str);
+  head.close();
+
+  ifstream branch_read (head_str);
+  getline(branch_read, cm.parent_sha1);
+  branch_read.close();
+
+  string commit_sha_str = "tree " + cm.tree_sha1 + "\n"
+                          + "parent " + cm.parent_sha1 + "\n"
+                          + "author " + cm.author + "\n"
+                          + "committer " + cm.committer + "\n"
+                          + cm.message + "\n"
+                          + asctime(cm_time);
+
+  cout << commit_sha_str << endl;
+
+  cm.sha1 = get_string_sha1 (commit_sha_str);
+  ofstream branch_write (head_str, ios::out | ios::trunc);
+  branch_write << cm.sha1;
+  branch_write.close();
+//cout<<cm.sha1<<endl;
+  save_commit(cm, HOME);
+
 }

@@ -101,7 +101,7 @@ cout << "add: " << add_file << endl;
 
   if(strcmp(argv[1], "status") == 0)
   {
-cout<<endl<<HOME<<endl;
+//cout<<endl<<HOME<<endl;
     status(HOME);
 
     return 0;

@@ -75,6 +75,40 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
   }
 }
 
+void match_tree (Tree tr, string HOME)
+{
+  for (int i = 0; i < tr.sha1_pointers.size(); i++)
+  {
+    if (tr.type[i] == false)
+    {
+      //cout << tr.pointer_paths[i] << endl;
+      struct stat st;
+      int k = tr.pointer_paths[i].find_first_of("/");
+      string path = tr.pointer_paths[i].substr(k+1, tr.pointer_paths[i].size()-1);
+      //cout << path << endl;
+      if(stat(&path[0], &st) == 0)
+      {
+        //cout << st.st_mtime << endl;
+        //cout << tr.mtime.size();
+        //cout << tr.type.size();
+        if(tr.mtime[i] != st.st_mtime)
+        {
+          cout << "Modified: " << tr.pointer_paths[i] << endl;
+        }
+        //cout << path << endl;
+      }
+    }
+    else
+    {
+      //cout << endl;
+      //cout << tr.name << endl;
+      Tree inner;
+      load_tree(inner, tr.sha1_pointers[i], HOME);
+      match_tree (inner, HOME);
+    }
+  }
+}
+
 void status(string HOME)
 {
   int i;
@@ -90,6 +124,20 @@ void status(string HOME)
     //cout<<"here"<<endl;
     load_index(INDEX, HOME);
     //cout<<"here"<<endl;
+  }
+
+  string last_commit_sha;
+  ifstream head (".vcs/HEAD");
+  getline(head, last_commit_sha);
+  head.close();
+
+  ifstream branch_read (last_commit_sha);
+  getline(branch_read, last_commit_sha);
+  branch_read.close();
+
+  if(last_commit_sha != "")
+  {
+    commit = true;
   }
 
   /* check for commit from HEAD */
@@ -126,5 +174,16 @@ void status(string HOME)
         }
 
       check_untracked_files(paths, HOME);
+    }
+
+  if(add && commit)
+    {
+      Commit cm;
+      load_commit(cm, last_commit_sha, HOME);
+      Tree tr;
+      load_tree(tr, cm.tree_sha1, HOME);
+
+      match_tree (tr, HOME);
+      cout << "here" << endl;
     }
 }

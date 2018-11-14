@@ -36,10 +36,21 @@ void get_blob_sha1(Blob &bl)
   //**added by sanket on 6 nov end
 }
 
-/*string get_tree_sha1(Tree tr, string path)
+string get_string_sha1(string str)
 {
+    char *text;
+    text=&str[0];
+    unsigned char hash[SHA_DIGEST_LENGTH];
 
-}*/
+    SHA1((unsigned char *)text, str.size(), hash);
+
+    char sha1string[SHA_DIGEST_LENGTH*2 +1];
+    for(int i = 0; i < SHA_DIGEST_LENGTH; ++i)
+    {
+        sprintf(&sha1string[i*2], "%02x", (unsigned int)hash[i]);
+    }
+    return sha1string;
+}
 
 int set_type_and_permissions(string type, int permissions)
 {

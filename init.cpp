@@ -24,15 +24,20 @@ void init(string HOME)
 
   ofstream config ("config");
   ofstream HEAD ("HEAD");
+  HEAD << ".vcs/refs/master";
   config.close();
   HEAD.close();
 
   mkdir("objects", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("refs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
+  chdir("refs");
+  ofstream branch ("master");
+  branch.close();
+
   chdir(&HOME[0]);
 
-  cout<<"Initialized empty VCS repository.\n";
+  cout << "Initialized empty VCS repository.\n";
 }
 //
 // int main()

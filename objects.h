@@ -42,6 +42,8 @@ public:
   vector<string> sha1_pointers;
   vector<string> pointer_paths; //including filename
   vector<string> pointer_perm;
+  vector<long int> mtime;
+  vector<bool> type; // 0 for blob and 1 for tree
 
   Tree() {}
 
@@ -54,7 +56,7 @@ public:
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(name, type_and_permissions, sha1, sha1_pointers, pointer_paths, pointer_perm);
+    ar(name, type_and_permissions, sha1, sha1_pointers, pointer_paths, pointer_perm, mtime, type);
   }
 };
 
@@ -118,6 +120,7 @@ public:
 };
 
 void get_blob_sha1(Blob&);
+string get_string_sha1(string);
 
 int set_time_and_permissions(int, int);
 
