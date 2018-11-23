@@ -17,6 +17,22 @@ bool check_presence(string path, Index &INDEX)
   return false;
 }
 
+/*
+bool check_presence(Index &INDEX, string path, int first, int last) 
+{ 
+	if (first > last) 
+		return false; 
+
+	int mid = (last+first)/2; 
+	if (path.compare(INDEX.entries[mid].path) == 0) 
+		return true; 
+	if (path.compare(INDEX.entries[mid.path) > 0) 
+		return searchStr(INDEX, path, mid+1, last); 
+	return searchStr(INDEX, path, first, mid-1); 
+} 
+*/
+
+
 void build_index(string source, Index &INDEX)
 {//cout<<source<<endl;
   struct stat srt;
