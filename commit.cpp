@@ -14,8 +14,7 @@ void add_to_map(string ,string ,IndexEntry& ,int );
 void match_commit (string ,string,string);
 
 
-bool sortinrev(const pair<int,string> &a,
-               const pair<int,string> &b)
+bool sortinrev(const pair<int,string> &a,const pair<int,string> &b)
 {
        return (a.first > b.first);
 }
@@ -27,36 +26,17 @@ vector< pair <int,string> > depth;
 string build_tree(Index &INDEX, string HOME)
 {
    
-    /*a[0]="a/1.txt";
-    a[1]="a/2.txt";
-    a[2]="a/b/3.txt";
-    a[3]="a/b/4.txt";
-    a[4]="a/b/c/5.txt";
-    a[5]="a/b/d/6.txt";
-    a[6]="a/e/f/g/h/7.txt";
-
-    sha[0]="a/1.txt";
-    sha[1]="a/2.txt";
-    sha[2]="a/b/3.txt";
-    sha[3]="a/b/4.txt";
-    sha[4]="a/b/c/5.txt";
-    sha[5]="a/b/d/6.txt";
-    sha[6]="a/e/f/g/h/7.txt";*/
-
-    //Blob bl[ INDEX.entries.size() ];
     int k = HOME.find_last_of("/");
     string home_folder = HOME.substr(k + 1, HOME.size() - 1);
 
     int i;
     for(i = 0; i < INDEX.entries.size(); i++)
     {
-        //load_blob(bl[i], INDEX.entries[i].sha1, HOME);
-
+      
         string temp = home_folder + "/" + INDEX.entries[i].path;
         k = temp.find_first_of("/");
         string dir_name = temp.substr(0, k);
         string remaining_part = temp.substr(k+1,temp.size()-k);
-        //cout<<remaining_part<<"\n";
         int temp_depth = 0;
         if(umap[dir_name].compare(""))
         {
@@ -70,22 +50,16 @@ string build_tree(Index &INDEX, string HOME)
         }
     }
 
-     /*for (auto itr = umap.begin(); itr != umap.end(); itr++)
-     {
-        cout << itr->first << "  " << itr->second << endl;
-     }*/
 
      sort(depth.begin(), depth.end(), sortinrev);
 
      string ret_val;
      for(i = 0; i < depth.size(); i++)
      {
-        //cout << "here" << endl;
         Tree tr;
-        //cout << depth[0].first << " " << depth[0].second << endl;
         string tree_obj_data = umap[ depth[i].second ];
         tree_obj_data = tree_obj_data.substr(5, tree_obj_data.size() - 5);  //dummy removed
-        //cout << tree_obj_data << "\n";
+       
 
         tr.sha1 = get_string_sha1(tree_obj_data);
         tr.name = depth[i].second;
@@ -101,10 +75,6 @@ string build_tree(Index &INDEX, string HOME)
           actual_path = ".";
         stat(&actual_path[0], &st);
         tr.type_and_permissions = st.st_mode;
-
-        //cout << depth[i].second << endl;
-        //cout << tr.name << " " << oct << tr.type_and_permissions << endl;
-
         string line;
         istringstream iss(tree_obj_data);
         while (getline(iss, line))
@@ -130,29 +100,6 @@ string build_tree(Index &INDEX, string HOME)
               tr.mtime.push_back( 0 );
             }
         }
-
-        //cout << tree_obj_data << endl;
-        //cout << endl;
-        /*while(token != NULL)
-        {
-          s = token;
-          tr.pointer_perm.push_back( s );
-          token = strtok(NULL, " ");
-
-          s = token;
-          tr.sha1_pointers.push_back( s );
-          token = strtok(NULL, " ");
-
-          s = token;
-          tr.pointer_paths.push_back( s );
-          token = strtok(NULL, " ");
-        }*/
-
-        //create file in object folder
-        /*std::ofstream outfile ("objects/" + tree_obj_data_sha);
-        outfile << tree_obj_data << std::endl;
-        outfile.close();*/
-
         k = depth[i].second.find_last_of("/");
         string parent = depth[i].second.substr(0, k);
         umap[parent] = umap[parent]
@@ -161,8 +108,6 @@ string build_tree(Index &INDEX, string HOME)
                        + tr.sha1 + " " + depth[i].second
                        + "\n";
 
-        //depth.erase(depth.begin());
-        //cout << tr.mtime.size() << endl;
         save_tree(tr, HOME);
 
         ret_val = tr.sha1;
