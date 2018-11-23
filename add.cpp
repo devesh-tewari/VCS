@@ -7,7 +7,7 @@
 
 string HOME;
 
-bool check_presence(string path, Index &INDEX)
+/*bool check_presence(string path, Index &INDEX)
 {
   for(int i = 0; i < INDEX.entries.size(); i++)
   {
@@ -16,21 +16,20 @@ bool check_presence(string path, Index &INDEX)
   }
   return false;
 }
-
-/*
-bool check_presence(Index &INDEX, string path, int first, int last) 
-{ 
-	if (first > last) 
-		return false; 
-
-	int mid = (last+first)/2; 
-	if (path.compare(INDEX.entries[mid].path) == 0) 
-		return true; 
-	if (path.compare(INDEX.entries[mid.path) > 0) 
-		return searchStr(INDEX, path, mid+1, last); 
-	return searchStr(INDEX, path, first, mid-1); 
-} 
 */
+
+bool check_presence(Index &INDEX, string path, int first, int last)
+{
+	if (first > last)
+		return false;
+
+	int mid = (last+first)/2;
+	if (path.compare(INDEX.entries[mid].path) == 0)
+		return true;
+	if (path.compare(INDEX.entries[mid].path) > 0)
+		return check_presence(INDEX, path, mid+1, last);
+	return check_presence(INDEX, path, first, mid-1);
+}
 
 
 void build_index(string source, Index &INDEX)
@@ -131,7 +130,7 @@ int type_and_permissions = srt.st_mode;
     //unsigned long last_modified = (unsigned long)srt.st_mtime;
     //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    if( !check_presence(source, INDEX) )
+    if( !check_presence(INDEX, source, 0, INDEX.entries.size() - 1) )
       INDEX.entries.push_back( entry );
   }
 }
