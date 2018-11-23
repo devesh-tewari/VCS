@@ -127,8 +127,8 @@ string build_tree(Index &INDEX, string HOME)
             }
         }
 
-        cout << tree_obj_data << endl;
-        cout << endl;
+        //cout << tree_obj_data << endl;
+        //cout << endl;
         /*while(token != NULL)
         {
           s = token;
@@ -158,7 +158,7 @@ string build_tree(Index &INDEX, string HOME)
                        + "\n";
 
         //depth.erase(depth.begin());
-        cout << tr.mtime.size() << endl;
+        //cout << tr.mtime.size() << endl;
         save_tree(tr, HOME);
 
         ret_val = tr.sha1;

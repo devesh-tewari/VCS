@@ -64,7 +64,7 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
     //tr.sha1 = get_tree_sha1(tr);
     //return tr.sha1;
   }
-  else   //if its a file, build blob
+  else
   {
     int k = source.find_last_of("/");
     string file_name = source.substr(k+1, source.size()-1);
@@ -75,15 +75,15 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
   }
 }
 
-void match_tree (Tree tr, string HOME)
+void match_tree (Tree tr, string HOME, unordered_map<string, bool>& paths)
 {
   for (int i = 0; i < tr.sha1_pointers.size(); i++)
   {
-    if (tr.type[i] == false)
+    if (tr.type[i] == false)  //if its a blob
     {
       //cout << tr.pointer_paths[i] << endl;
       struct stat st;
-      int k = tr.pointer_paths[i].find_first_of("/");
+      int k = tr.pointer_paths[i].find_first_of("/");  //paths currently have home folder included
       string path = tr.pointer_paths[i].substr(k+1, tr.pointer_paths[i].size()-1);
       //cout << path << endl;
       if(stat(&path[0], &st) == 0)
@@ -97,14 +97,19 @@ void match_tree (Tree tr, string HOME)
         }
         //cout << path << endl;
       }
+      else
+      {
+        cout << "Deleted: " << tr.pointer_paths[i] << endl;
+      }
+      paths.insert( make_pair(path, true) );
     }
-    else
+    else  //if its a tree
     {
       //cout << endl;
       //cout << tr.name << endl;
       Tree inner;
       load_tree(inner, tr.sha1_pointers[i], HOME);
-      match_tree (inner, HOME);
+      match_tree (inner, HOME, paths);
     }
   }
 }
@@ -183,7 +188,8 @@ void status(string HOME)
       Tree tr;
       load_tree(tr, cm.tree_sha1, HOME);
 
-      match_tree (tr, HOME);
-      cout << "here" << endl;
+      unordered_map<string, bool> paths;
+      match_tree (tr, HOME, paths);
+      check_untracked_files(paths, HOME);
     }
 }
