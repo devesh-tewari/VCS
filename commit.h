@@ -5,5 +5,6 @@
 using namespace std;
 
 void commit(string,string);
+void match_commit (string,string,string);
 
 #endif
