@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include "objects.h"
 #include "serialize.h"
 using namespace std;
@@ -23,6 +25,7 @@ vector< pair <int,string> > depth;
 
 string build_tree(Index &INDEX, string HOME)
 {
+   
     /*a[0]="a/1.txt";
     a[1]="a/2.txt";
     a[2]="a/b/3.txt";
@@ -199,10 +202,12 @@ void add_to_map(string prev_path, string current_path, IndexEntry& entry, int cu
 }
 
 
-void commit(string HOME)
+void commit(string HOME,string commit_msg)
 {
   Index INDEX;
   struct stat st;
+  struct passwd *user;
+
   string index_path = HOME + "/.vcs/INDEX";
 
   if(stat(&index_path[0], &st) == 0)
@@ -214,7 +219,8 @@ void commit(string HOME)
     cout << "nothing added to commit" << endl;
     return;
   }
-
+  if(stat(index_path.c_str(), &st ) == 0)
+    user = getpwuid(st.st_uid);
   Commit cm;
   cm.tree_sha1 = build_tree(INDEX, HOME);
   tm* cm_time = localtime(&cm.timestamp);
@@ -228,7 +234,9 @@ void commit(string HOME)
   ifstream branch_read (head_str);
   getline(branch_read, cm.parent_sha1);
   branch_read.close();
-
+  cm.author=user->pw_name;
+  cm.committer=user->pw_name;
+  cm.message=commit_msg;
   string commit_sha_str = "tree " + cm.tree_sha1 + "\n"
                           + "parent " + cm.parent_sha1 + "\n"
                           + "author " + cm.author + "\n"

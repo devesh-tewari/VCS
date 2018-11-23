@@ -110,8 +110,15 @@ cout << "add: " << add_file << endl;
   if(strcmp(argv[1], "commit") == 0)
   {
 //cout<<endl<<HOME<<endl;
-    commit(HOME);
-
+    if(argc == 4 && strcmp(argv[2], "-m") == 0)
+        {
+          string message= argv[3];
+          commit(HOME,message);
+        }
+        else{
+          cout << "Nothing specified, nothing committed." << endl;
+          cout << "Maybe you wanted to say '  vcs commit -m 'commit message'  '?" << endl; 
+        }
     return 0;
   }
 

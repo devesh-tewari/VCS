@@ -4,6 +4,6 @@
 #include <string>
 using namespace std;
 
-void commit(string);
+void commit(string,string);
 
 #endif
