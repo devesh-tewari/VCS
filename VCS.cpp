@@ -150,7 +150,7 @@ cout << "add: " << add_file << endl;
   if(strcmp(argv[1], "reset") == 0)
   {
     string destination_sha = argv[3];
-    cout<<"Reached in VCS.cpp ";
+    cout<<"Reached in VCS.cpp \n";
 
     ifstream head (".vcs/HEAD");
     string current_branch,current_sha;

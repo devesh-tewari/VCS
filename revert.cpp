@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include "objects.h"
 #include "serialize.h"
+#include "revert.h"
 using namespace std;
 
 
@@ -17,18 +18,31 @@ string patch( string curr_blob_data, string parent_file_patch)
   cout<<"Pathch"<<endl; 
   string path1 = ".vcs/temp/data";
   string path2 = ".vcs/temp/patchfile";
-  ofstream file1(path1, std::ios::binary | std::ios::out | std::ios::trunc);
-  ofstream file2(path2, std::ios::binary | std::ios::out | std::ios::trunc);
-  file1 << curr_blob_data;
-  file2 << parent_file_patch;
-  file1.close();
-  file2.close();
+  ofstream file3(path1, std::ios::binary | std::ios::out | std::ios::trunc);
+  ofstream file4(path2, std::ios::out | std::ios::trunc);
+  file3 << curr_blob_data;
+  file4 << parent_file_patch;
+  file3.close();
+  file4.close();
   string command = "bash -c \"patch -i .vcs/temp/data .vcs/temp/patchfile\"";
   cout << command << endl;
-  string result;
-  result = system (command.c_str ());
-  cout<<result<<endl;
-  return result;
+  system (command.c_str ());
+  ifstream myfile (".vcs/temp/data");
+  string data="";
+  string line;
+  if (myfile.is_open())
+  {
+    while ( getline (myfile,line) )
+    {
+      data+=line;
+    }
+    myfile.close();
+  }
+
+  else cout << "Unable to open file"; 
+
+  return data;
+  
 }
 
 
@@ -52,6 +66,7 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
                   Blob curr_blob,parent_blob;
                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
                   load_blob(parent_blob,parent_matched_sha,HOME);
+                  cout<<"patch se pehle"<<curr_blob.data<<endl<<parent_blob.data<<endl;
                   parent_blob.data = patch(curr_blob.data,parent_blob.data);
                   // parent_blob.data=curr_blob.data;
                   // cout<<"mai hu"<<parent_blob.data<<endl;
@@ -66,30 +81,21 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
       }
   }
 
-  // ifstream head (".vcs/HEAD");
-  // string head_str;
-  // ofstream branch_write (head_str, ios::out | ios::trunc);
-  // branch_write << parent_sha;
-  // branch_write.close();
-  // save_commit(cm, HOME);
 
 }
 
 void reset( string destination_sha , string current_sha , string option ,string HOME)
-  // string curr_sha, string parent_sha, string HOME , )
 {
-     cout<<"reset nhi ho rha";
-
-  while(destination_sha != current_sha )
+  while(current_sha != destination_sha )
   {
-    Commit current_commit;
-     cout<<"load nhi ho rha";
+    Commit current_commit,parent_commit;
     load_commit(current_commit, current_sha, HOME);
-    cout<<"load ho rha";
     string parent_sha = current_commit.parent_sha1;
-    resetUtil ( current_sha, parent_sha, HOME);
+    string current_tree_sha=current_commit.tree_sha1;
+    load_commit(parent_commit, parent_sha, HOME);
+    string parent_tree_sha=parent_commit.tree_sha1;
+    resetUtil ( current_tree_sha, parent_tree_sha, HOME);
     current_sha = parent_sha;
-    // save_commit(current_commit,HOME);
     ifstream head (".vcs/HEAD");
     string head_str;
     getline(head, head_str);
@@ -97,6 +103,5 @@ void reset( string destination_sha , string current_sha , string option ,string 
     ofstream branch_write (head_str, ios::out | ios::trunc);
     branch_write << current_sha;
     branch_write.close();
-    // save_commit(cm, HOME);
   }
 }
