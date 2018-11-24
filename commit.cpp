@@ -4,15 +4,18 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include "objects.h"
 #include "serialize.h"
+#include "diff.h"
 using namespace std;
 
 void add_to_map(string ,string ,IndexEntry& ,int );
+void match_commit (string ,string,string);
 
 
-bool sortinrev(const pair<int,string> &a,
-               const pair<int,string> &b)
+bool sortinrev(const pair<int,string> &a,const pair<int,string> &b)
 {
        return (a.first > b.first);
 }
@@ -23,36 +26,18 @@ vector< pair <int,string> > depth;
 
 string build_tree(Index &INDEX, string HOME)
 {
-    /*a[0]="a/1.txt";
-    a[1]="a/2.txt";
-    a[2]="a/b/3.txt";
-    a[3]="a/b/4.txt";
-    a[4]="a/b/c/5.txt";
-    a[5]="a/b/d/6.txt";
-    a[6]="a/e/f/g/h/7.txt";
 
-    sha[0]="a/1.txt";
-    sha[1]="a/2.txt";
-    sha[2]="a/b/3.txt";
-    sha[3]="a/b/4.txt";
-    sha[4]="a/b/c/5.txt";
-    sha[5]="a/b/d/6.txt";
-    sha[6]="a/e/f/g/h/7.txt";*/
-
-    //Blob bl[ INDEX.entries.size() ];
     int k = HOME.find_last_of("/");
     string home_folder = HOME.substr(k + 1, HOME.size() - 1);
 
     int i;
     for(i = 0; i < INDEX.entries.size(); i++)
     {
-        //load_blob(bl[i], INDEX.entries[i].sha1, HOME);
 
         string temp = home_folder + "/" + INDEX.entries[i].path;
         k = temp.find_first_of("/");
         string dir_name = temp.substr(0, k);
         string remaining_part = temp.substr(k+1,temp.size()-k);
-        //cout<<remaining_part<<"\n";
         int temp_depth = 0;
         if(umap[dir_name].compare(""))
         {
@@ -66,22 +51,16 @@ string build_tree(Index &INDEX, string HOME)
         }
     }
 
-     /*for (auto itr = umap.begin(); itr != umap.end(); itr++)
-     {
-        cout << itr->first << "  " << itr->second << endl;
-     }*/
 
      sort(depth.begin(), depth.end(), sortinrev);
 
      string ret_val;
      for(i = 0; i < depth.size(); i++)
      {
-        //cout << "here" << endl;
         Tree tr;
-        //cout << depth[0].first << " " << depth[0].second << endl;
         string tree_obj_data = umap[ depth[i].second ];
         tree_obj_data = tree_obj_data.substr(5, tree_obj_data.size() - 5);  //dummy removed
-        //cout << tree_obj_data << "\n";
+
 
         tr.sha1 = get_string_sha1(tree_obj_data);
         tr.name = depth[i].second;
@@ -97,10 +76,6 @@ string build_tree(Index &INDEX, string HOME)
           actual_path = ".";
         stat(&actual_path[0], &st);
         tr.type_and_permissions = st.st_mode;
-
-        //cout << depth[i].second << endl;
-        //cout << tr.name << " " << oct << tr.type_and_permissions << endl;
-
         string line;
         istringstream iss(tree_obj_data);
         while (getline(iss, line))
@@ -126,29 +101,6 @@ string build_tree(Index &INDEX, string HOME)
               tr.mtime.push_back( 0 );
             }
         }
-
-        //cout << tree_obj_data << endl;
-        //cout << endl;
-        /*while(token != NULL)
-        {
-          s = token;
-          tr.pointer_perm.push_back( s );
-          token = strtok(NULL, " ");
-
-          s = token;
-          tr.sha1_pointers.push_back( s );
-          token = strtok(NULL, " ");
-
-          s = token;
-          tr.pointer_paths.push_back( s );
-          token = strtok(NULL, " ");
-        }*/
-
-        //create file in object folder
-        /*std::ofstream outfile ("objects/" + tree_obj_data_sha);
-        outfile << tree_obj_data << std::endl;
-        outfile.close();*/
-
         k = depth[i].second.find_last_of("/");
         string parent = depth[i].second.substr(0, k);
         umap[parent] = umap[parent]
@@ -157,8 +109,6 @@ string build_tree(Index &INDEX, string HOME)
                        + tr.sha1 + " " + depth[i].second
                        + "\n";
 
-        //depth.erase(depth.begin());
-        //cout << tr.mtime.size() << endl;
         save_tree(tr, HOME);
 
         ret_val = tr.sha1;
@@ -199,10 +149,12 @@ void add_to_map(string prev_path, string current_path, IndexEntry& entry, int cu
 }
 
 
-void commit(string HOME)
+void commit(string HOME,string commit_msg)
 {
   Index INDEX;
   struct stat st;
+  struct passwd *user;
+
   string index_path = HOME + "/.vcs/INDEX";
 
   if(stat(&index_path[0], &st) == 0)
@@ -214,7 +166,8 @@ void commit(string HOME)
     cout << "nothing added to commit" << endl;
     return;
   }
-
+  if(stat(index_path.c_str(), &st ) == 0)
+    user = getpwuid(st.st_uid);
   Commit cm;
   cm.tree_sha1 = build_tree(INDEX, HOME);
   tm* cm_time = localtime(&cm.timestamp);
@@ -228,7 +181,9 @@ void commit(string HOME)
   ifstream branch_read (head_str);
   getline(branch_read, cm.parent_sha1);
   branch_read.close();
-
+  cm.author=user->pw_name;
+  cm.committer=user->pw_name;
+  cm.message=commit_msg;
   string commit_sha_str = "tree " + cm.tree_sha1 + "\n"
                           + "parent " + cm.parent_sha1 + "\n"
                           + "author " + cm.author + "\n"
@@ -242,7 +197,52 @@ void commit(string HOME)
   ofstream branch_write (head_str, ios::out | ios::trunc);
   branch_write << cm.sha1;
   branch_write.close();
-//cout<<cm.sha1<<endl;
   save_commit(cm, HOME);
 
+  //cout << cm.parent_sha1;
+  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  {
+    Commit cmparent;
+    load_commit(cmparent, cm.parent_sha1,HOME);
+    match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
+  }
+
+}
+
+
+void match_commit (string curr_sha,string parent_sha,string HOME)
+{
+  Tree curr_tree,parent_tree;
+  load_tree(curr_tree, curr_sha, HOME);
+  load_tree(parent_tree, parent_sha, HOME);
+  for (int i = 0; i < curr_tree.pointer_paths.size(); i++)
+  {
+    auto itr=find(parent_tree.pointer_paths.begin(),parent_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+    if(itr != parent_tree.pointer_paths.end())   // old entry in current commit
+      {
+          int itr_index=itr-parent_tree.pointer_paths.begin();
+          string parent_matched_path=*itr;
+          string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
+          if (curr_tree.type[i] == false)  //if its a blob
+          {
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                {
+                  Blob curr_blob,parent_blob;
+                  load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
+                  load_blob(parent_blob,parent_matched_sha,HOME);
+                  //cout << parent_blob.data << endl;
+                  //cout << curr_blob.data << endl;
+                  string delta = diff(parent_blob.data,curr_blob.data);
+                  parent_blob.data=delta;
+                  //cout << delta << endl;
+                  save_blob(parent_blob,HOME);
+                }
+
+          }
+          else
+          {
+              match_commit (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
+          }
+      }
+  }
 }

@@ -43,7 +43,7 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
       const char* file_path_c = &file_path[0];
 		  if(stat(file_path_c, &st) != 0)
 		  {
-        cout<<"File does not exist!\n";
+        cout << "File does not exist!\n";
         return;
     	}
 	    files.push_back(file_path_c);

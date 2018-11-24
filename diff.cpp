@@ -14,7 +14,7 @@ string diff(string s1, string s2)
   file1.close();
   file2.close();
   string command = "bash -c \"diff .vcs/temp/diff1 .vcs/temp/diff2\"";
-  //cout << command << endl;
+  cout << command << endl;
   string result;
   return result = system (command.c_str ());
 }
