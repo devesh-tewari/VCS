@@ -194,6 +194,7 @@ void commit(string HOME,string commit_msg)
   cout << commit_sha_str << endl;
 
   cm.sha1 = get_string_sha1 (commit_sha_str);
+  cout<<"Commit sha___"<<cm.sha1<<endl;
   ofstream branch_write (head_str, ios::out | ios::trunc);
   branch_write << cm.sha1;
   branch_write.close();
