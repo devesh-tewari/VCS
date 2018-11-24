@@ -30,6 +30,7 @@ void init(string HOME)
 
   mkdir("objects", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("refs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir("temp", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   chdir("refs");
   ofstream branch ("master");
