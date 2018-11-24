@@ -12,7 +12,7 @@ using namespace std;
 void save_blob(Blob bl, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + bl.sha1;
-    ofstream os(path, std::ios::binary | std::ios::out);
+    ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
     cereal::BinaryOutputArchive archive( os );
     archive( bl );
     os.close();
@@ -30,7 +30,7 @@ void load_blob(Blob &bl, string sha, string HOME)
 void save_tree(Tree tr, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + tr.sha1;
-    ofstream os(path, std::ios::binary | std::ios::out);
+    ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
     cereal::BinaryOutputArchive archive( os );
     archive( tr );
     os.close();
@@ -48,7 +48,7 @@ void load_tree(Tree &tr, string sha, string HOME)
 void save_commit(Commit cm, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + cm.sha1;
-    ofstream os(path, std::ios::binary | std::ios::out);
+    ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
     cereal::BinaryOutputArchive archive( os );
     archive( cm );
     os.close();

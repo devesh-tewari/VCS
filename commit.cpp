@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include "objects.h"
 #include "serialize.h"
+#include "diff.h"
 using namespace std;
 
 void add_to_map(string ,string ,IndexEntry& ,int );
@@ -25,14 +26,14 @@ vector< pair <int,string> > depth;
 
 string build_tree(Index &INDEX, string HOME)
 {
-   
+
     int k = HOME.find_last_of("/");
     string home_folder = HOME.substr(k + 1, HOME.size() - 1);
 
     int i;
     for(i = 0; i < INDEX.entries.size(); i++)
     {
-      
+
         string temp = home_folder + "/" + INDEX.entries[i].path;
         k = temp.find_first_of("/");
         string dir_name = temp.substr(0, k);
@@ -59,7 +60,7 @@ string build_tree(Index &INDEX, string HOME)
         Tree tr;
         string tree_obj_data = umap[ depth[i].second ];
         tree_obj_data = tree_obj_data.substr(5, tree_obj_data.size() - 5);  //dummy removed
-       
+
 
         tr.sha1 = get_string_sha1(tree_obj_data);
         tr.name = depth[i].second;
@@ -197,9 +198,14 @@ void commit(string HOME,string commit_msg)
   branch_write << cm.sha1;
   branch_write.close();
   save_commit(cm, HOME);
-  Commit cmparent;
-  load_commit(cmparent, cm.parent_sha1,HOME);
-  match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
+
+  //cout << cm.parent_sha1;
+  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  {
+    Commit cmparent;
+    load_commit(cmparent, cm.parent_sha1,HOME);
+    match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
+  }
 
 }
 
@@ -224,16 +230,19 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
                   Blob curr_blob,parent_blob;
                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
                   load_blob(parent_blob,parent_matched_sha,HOME);
+                  //cout << parent_blob.data << endl;
+                  //cout << curr_blob.data << endl;
                   string delta = diff(parent_blob.data,curr_blob.data);
                   parent_blob.data=delta;
+                  //cout << delta << endl;
                   save_blob(parent_blob,HOME);
                 }
-              
+
           }
-          else  
+          else
           {
               match_commit (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
           }
-      }  
+      }
   }
 }

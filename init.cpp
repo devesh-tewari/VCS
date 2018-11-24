@@ -30,6 +30,12 @@ void init(string HOME)
 
   mkdir("objects", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("refs", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir("temp", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  ofstream f1 ("temp/diff1");
+  ofstream f2 ("temp/diff2");
+  f1.close ();
+  f2.close ();
 
   chdir("refs");
   ofstream branch ("master");

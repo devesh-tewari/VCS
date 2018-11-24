@@ -17,20 +17,19 @@ bool check_presence(string path, Index &INDEX)
   return false;
 }
 
-/*
-bool check_presence(Index &INDEX, string path, int first, int last) 
-{ 
-	if (first > last) 
-		return false; 
 
-	int mid = (last+first)/2; 
-	if (path.compare(INDEX.entries[mid].path) == 0) 
-		return true; 
-	if (path.compare(INDEX.entries[mid.path) > 0) 
-		return searchStr(INDEX, path, mid+1, last); 
-	return searchStr(INDEX, path, first, mid-1); 
-} 
-*/
+/*bool check_presence(Index &INDEX, string path, int first, int last)
+{
+	if (first > last)
+		return false;
+
+	int mid = (last+first)/2;
+	if (path.compare(INDEX.entries[mid].path) == 0)
+		return true;
+	if (path.compare(INDEX.entries[mid].path) > 0)
+		return check_presence(INDEX, path, mid+1, last);
+	return check_presence(INDEX, path, first, mid-1);
+}*/
 
 
 void build_index(string source, Index &INDEX)
@@ -113,7 +112,7 @@ int type_and_permissions = srt.st_mode;
 //cout<<"here"<<endl;
 //=======
 //cout<<"here";
-    save_blob(bl, HOME);
+    //save_blob(bl, HOME);
 //cout<<"here"<<endl;
 //>>>>>>> 3c4cee69ec1ef18edc5cfc7a5fb14f5e375f33e9
 //cout<<"here"<<" ";
@@ -131,7 +130,7 @@ int type_and_permissions = srt.st_mode;
     //unsigned long last_modified = (unsigned long)srt.st_mtime;
     //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    if( !check_presence(source, INDEX) )
+    if( !check_presence(source, INDEX))
       INDEX.entries.push_back( entry );
   }
 }

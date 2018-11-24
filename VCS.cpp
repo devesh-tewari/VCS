@@ -122,5 +122,29 @@ cout << "add: " << add_file << endl;
     return 0;
   }
 
+  if(strcmp(argv[1], "branch") == 0)
+  {
+    string branch;
+
+    if (argc < 3)
+    {
+      ifstream head (".vcs/HEAD");
+      getline(head, branch);
+      int k = branch.find_last_of("/");
+      branch = branch.substr(k + 1, branch.size() - k - 1);
+      head.close();
+      cout << branch << endl;
+      return 0;
+    }
+
+    ofstream head (".vcs/HEAD", std::ios::trunc | std::ios::out);
+    string br = argv[2];
+    string new_ref = ".vcs/refs/" + br;
+    head << new_ref;
+    head.close();
+
+    return 0;
+  }
+
   return 0;
 }
