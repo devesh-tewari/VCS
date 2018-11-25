@@ -17,7 +17,7 @@ void match_commit (string ,string,string);
 
 bool sortinrev(const pair<int,string> &a,const pair<int,string> &b)
 {
-       return (a.first > b.first);
+  return (a.first > b.first);
 }
 
 unordered_map<string, string> umap;
@@ -245,4 +245,58 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
           }
       }
   }
+}
+
+
+void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string HOME)
+{
+  Index INDEX;
+  struct stat st;
+  struct passwd *user;
+
+  string index_path = HOME + ".vcs/INDEX";
+  if(stat(index_path.c_str(), &st ) == 0)
+    user = getpwuid(st.st_uid);
+
+  Commit cm;
+  cm.tree_sha1 = new_tree.sha1;
+  tm* cm_time = localtime(&cm.timestamp);
+  //cout << asctime(cm_time) << endl;
+
+  ifstream head (".vcs/HEAD");
+  string head_str;
+  getline(head, head_str);
+  head.close();
+
+  ifstream branch_read (head_str);
+  getline(branch_read, cm.parent_sha1);
+  branch_read.close();
+
+  cm.second_parent_sha1 = other.sha1;
+  cm.author=user->pw_name;
+  cm.committer=user->pw_name;
+  cm.message= "merge";
+  string commit_sha_str = "tree " + cm.tree_sha1 + "\n"
+                          + "parent " + cm.parent_sha1 + "\n"
+                          + "author " + cm.author + "\n"
+                          + "committer " + cm.committer + "\n"
+                          + cm.message + "\n"
+                          + asctime(cm_time);
+
+  cout << commit_sha_str << endl;
+
+  cm.sha1 = get_string_sha1 (commit_sha_str);
+  ofstream branch_write (head_str, ios::out | ios::trunc);
+  branch_write << cm.sha1;
+  branch_write.close();
+  save_commit(cm, HOME);
+
+  //cout << cm.parent_sha1;
+  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  {
+    Commit cmparent;
+    load_commit(cmparent, cm.parent_sha1, HOME);
+    match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
+  }
+
 }
