@@ -66,6 +66,7 @@ public:
   string sha1;
   string tree_sha1;
   string parent_sha1;
+  string second_parent_sha1;
   string author;
   string committer;
   time_t timestamp;
@@ -74,6 +75,7 @@ public:
   Commit()
   {
     this->timestamp = time(0);   // get time now
+    this->second_parent_sha1 = "";
   }
 
   template <class Archive>

@@ -14,6 +14,7 @@ string diff(string s1, string s2)
   file2 << s2;
   file1.close();
   file2.close();
+<<<<<<< HEAD
   string command = "bash -c \"diff .vcs/temp/diff2 .vcs/temp/diff1 >.vcs/temp/patch\"";
   cout << command << endl;
   system (command.c_str ());
@@ -34,6 +35,14 @@ string diff(string s1, string s2)
 
   cout<<data<<"diffresult\n";
   return data;
+=======
+  string command = "bash -c \"diff .vcs/temp/diff1 .vcs/temp/diff2\"";
+  //cout << command << endl;
+  string result;
+  result = system (command.c_str ());
+  cout<<result<<"diffresult\n";
+  return result;
+>>>>>>> 1792f787fa48125cef0d9bd11e07573663b43fbf
 }
 
 /*int main ()
