@@ -14,6 +14,11 @@ bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2)  //return true for f
   return true;
 }
 
+void bash_merge(Blob& cur, Blob& other, Blob& ca, Blob& new_blob)
+{
+  
+}
+
 void merge(string other_branch, string HOME)
 {
   ifstream head (".vcs/HEAD");
@@ -90,7 +95,7 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
                   load_blob(b2 ,matched2_sha, HOME);
                   load_blob(b3 ,matched3_sha, HOME);
 
-                  //bash_merge(b1, b2, b3, b4);
+                  bash_merge(b1, b2, b3, b4);
 
                   get_blob_sha1(b4);
                   t4.sha1_pointers.push_back( b4.sha1 );
