@@ -10,6 +10,7 @@
 #include "serialize.h"
 #include "reset.h"
 #include "delete.h"
+#include "create_files_after_reset.h"
 using namespace std;
 
 
@@ -118,4 +119,9 @@ void reset( string destination_sha , string current_sha , string option ,string 
     branch_write << current_sha;
     branch_write.close();
   }
+  Commit curr_commit;
+  load_commit(curr_commit,current_sha, HOME);
+  string tree_sha=curr_commit.tree_sha1;
+  create_tree_files_into_wd(tree_sha, HOME);
+
 }

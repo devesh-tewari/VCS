@@ -10,32 +10,32 @@ void add_files_not_in_t1(Tree&, Tree&, Tree&, string);
 
 bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2)  //return true for fast forward merge
 {
-  unordered_map <string, int> m;
-  m[c1.sha1]=1;
-  string temp_parent_sha=c1.parent_sha1;
-  while(temp_parent_sha.compare(""))
-  {
-    Commit temp_cm;
-    load_commit(temp_cm, temp_parent_sha, HOME);
-    m[temp_cm.sha1]=1;
-    temp_parent_sha=temp_cm.parent_sha1;
-  }
+  // unordered_map <string, int> m;
+  // m[c1.sha1]=1;
+  // string temp_parent_sha=c1.parent_sha1;
+  // while(temp_parent_sha.compare(""))
+  // {
+  //   Commit temp_cm;
+  //   load_commit(temp_cm, temp_parent_sha, HOME);
+  //   m[temp_cm.sha1]=1;
+  //   temp_parent_sha=temp_cm.parent_sha1;
+  // }
 
-  temp_parent_sha=c2.sha1;
-  while(temp_parent_sha.compare(""))
-  {
-    if(m[temp_parent_sha])
-    {
-      load_commit(ca, temp_parent_sha, HOME);
-      break;
-    }
-    Commit temp_cm;
-    load_commit(temp_cm, temp_parent_sha, HOME);
-    temp_parent_sha=temp_cm.parent_sha1;
-  }
+  // temp_parent_sha=c2.sha1;
+  // while(temp_parent_sha.compare(""))
+  // {
+  //   if(m[temp_parent_sha])
+  //   {
+  //     load_commit(ca, temp_parent_sha, HOME);
+  //     break;
+  //   }
+  //   Commit temp_cm;
+  //   load_commit(temp_cm, temp_parent_sha, HOME);
+  //   temp_parent_sha=temp_cm.parent_sha1;
+  // }
 
-  if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
-    return true;
+  // if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
+  //   return true;
   return false;
 }
 

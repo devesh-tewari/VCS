@@ -5,7 +5,6 @@
 #include "commit.h"
 #include "reset.h"
 #include "vcsdiff.h"
-#include "revert.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
