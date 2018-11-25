@@ -8,7 +8,8 @@
 #include <pwd.h>
 #include "objects.h"
 #include "serialize.h"
-#include "revert.h"
+#include "reset.h"
+#include "delete.h"
 using namespace std;
 
 
@@ -17,14 +18,14 @@ string patch( string curr_blob_data, string parent_file_patch)
 {
   cout<<"Pathch"<<endl; 
   string path1 = ".vcs/temp/data";
-  string path2 = ".vcs/temp/patchfile";
+  string path2 = ".vcs/temp/patchfile.patch";
   ofstream file3(path1, std::ios::binary | std::ios::out | std::ios::trunc);
-  ofstream file4(path2, std::ios::out | std::ios::trunc);
+  ofstream file4(path2, std::ios::binary | std::ios::out | std::ios::trunc);
   file3 << curr_blob_data;
   file4 << parent_file_patch;
   file3.close();
   file4.close();
-  string command = "bash -c \"patch -i .vcs/temp/data .vcs/temp/patchfile\"";
+  string command = "bash -c \"patch .vcs/temp/data .vcs/temp/patchfile.patch\"";
   cout << command << endl;
   system (command.c_str ());
   ifstream myfile (".vcs/temp/data");
@@ -35,6 +36,7 @@ string patch( string curr_blob_data, string parent_file_patch)
     while ( getline (myfile,line) )
     {
       data+=line;
+      data+="\n";
     }
     myfile.close();
   }
@@ -69,7 +71,7 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
                   cout<<"patch se pehle"<<curr_blob.data<<endl<<parent_blob.data<<endl;
                   parent_blob.data = patch(curr_blob.data,parent_blob.data);
                   // parent_blob.data=curr_blob.data;
-                  // cout<<"mai hu"<<parent_blob.data<<endl;
+                  cout<<"mai hu"<<parent_blob.data<<endl;
                   save_blob(parent_blob,HOME);
                 }
 
@@ -79,6 +81,18 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
               resetUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
           }
       }
+    else
+      {
+          
+          string path;
+          path=HOME + "/../" + curr_tree.pointer_paths[i];
+          cout<<path<<endl;
+          delinit(path);
+          // string command = "bash -c \"rm -R *itr\"";
+          // cout << command << endl;
+          // system (command.c_str ());
+      }
+    
   }
 
 

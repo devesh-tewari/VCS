@@ -3,7 +3,7 @@
 #include "add.h"
 #include "status.h"
 #include "commit.h"
-#include "revert.h"
+#include "reset.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
