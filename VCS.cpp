@@ -3,7 +3,11 @@
 #include "add.h"
 #include "status.h"
 #include "commit.h"
+<<<<<<< HEAD
 #include "vcsdiff.h"
+=======
+#include "revert.h"
+>>>>>>> a363f23fccd1c54e3511698fc60cd62180941512
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -172,5 +176,26 @@ cout << "add: " << add_file << endl;
 
     return 0;
   }
+  if(strcmp(argv[1], "reset") == 0)
+  {
+    string destination_sha = argv[3];
+    cout<<"Reached in VCS.cpp \n";
+
+    ifstream head (".vcs/HEAD");
+    string current_branch,current_sha;
+    getline(head, current_branch);
+    head.close();
+
+    ifstream branch_read (current_branch);
+    getline(branch_read, current_sha);
+    branch_read.close();
+
+
+    string option = "";
+    cout<<current_sha<<endl<<HOME<<endl<<destination_sha<<endl;
+
+    reset( destination_sha , current_sha , option , HOME);
+  }
+
   return 0;
 }

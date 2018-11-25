@@ -194,6 +194,7 @@ void commit(string HOME,string commit_msg)
   cout << commit_sha_str << endl;
 
   cm.sha1 = get_string_sha1 (commit_sha_str);
+  cout<<"Commit sha___"<<cm.sha1<<endl;
   ofstream branch_write (head_str, ios::out | ios::trunc);
   branch_write << cm.sha1;
   branch_write.close();
@@ -212,6 +213,7 @@ void commit(string HOME,string commit_msg)
 
 void match_commit (string curr_sha,string parent_sha,string HOME)
 {
+  cout<<"commit.cpp"<<curr_sha<<"----"<<parent_sha<<endl;
   Tree curr_tree,parent_tree;
   load_tree(curr_tree, curr_sha, HOME);
   load_tree(parent_tree, parent_sha, HOME);
@@ -234,7 +236,7 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
                   //cout << curr_blob.data << endl;
                   string delta = diff(parent_blob.data,curr_blob.data);
                   parent_blob.data=delta;
-                  //cout << delta << endl;
+                  cout <<"mai delta hu"<< delta << endl;
                   save_blob(parent_blob,HOME);
                 }
 

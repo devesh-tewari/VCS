@@ -16,7 +16,9 @@ string diff(string s1, string s2)
   string command = "bash -c \"diff .vcs/temp/diff1 .vcs/temp/diff2\"";
   cout << command << endl;
   string result;
-  return result = system (command.c_str ());
+  result = system (command.c_str ());
+  cout<<result<<"diffresult\n";
+  return result;
 }
 
 /*int main ()
