@@ -123,7 +123,7 @@ int type_and_permissions = srt.st_mode;
       source = source.substr(2, source.size()-2);
     entry.path = source;
     //string index_entry = bitset<8>(type_and_permissions).to_string() + " ";
-//cout<<"here"<<endl;
+    //cout<<"here"<<endl;
     //index_entry += bl.sha1 + " ";
     //index_entry += source + "\t";  //save only path from vcs root
     entry.mtime = (unsigned long)srt.st_mtime;

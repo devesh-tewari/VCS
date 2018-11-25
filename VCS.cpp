@@ -3,6 +3,7 @@
 #include "add.h"
 #include "status.h"
 #include "commit.h"
+#include "vcsdiff.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -146,5 +147,30 @@ cout << "add: " << add_file << endl;
     return 0;
   }
 
+  if(strcmp(argv[1], "diff") == 0)
+  {
+    
+    if (argc < 3) // simple vcs diff to compare stagging area(index) and cwd
+    {
+        vcsdiff(HOME);
+    }
+
+    else
+    {
+      if(strcmp(argv[2], "--cached") == 0) // compare stagging area(index) and latest commit
+        {
+            vcsdiff_cached(HOME);
+        }
+      if(strcmp(argv[2], "--no-index") == 0)  // compare 2 files in cwd
+        {
+            if(argc == 5)
+            {
+                vcsdiff(HOME,argv[3],argv[4]);
+            }
+        }
+    }
+
+    return 0;
+  }
   return 0;
 }
