@@ -3,11 +3,8 @@
 #include "add.h"
 #include "status.h"
 #include "commit.h"
-<<<<<<< HEAD
 #include "vcsdiff.h"
-=======
 #include "revert.h"
->>>>>>> a363f23fccd1c54e3511698fc60cd62180941512
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
