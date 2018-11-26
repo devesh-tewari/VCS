@@ -1,5 +1,5 @@
-#ifndef REVERT_H
-#define REVERT_H
+#ifndef RESET_H
+#define RESET_H
 
 #include <string>
 using namespace std;
