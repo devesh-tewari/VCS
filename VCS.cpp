@@ -8,10 +8,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 
 int main(int argc, char** argv)
 {
-  if(argc == 0)
+  if(argc == 1)
     return 0;
 
   char H[PATH_MAX];
@@ -119,7 +120,7 @@ cout << "add: " << add_file << endl;
         }
         else{
           cout << "Nothing specified, nothing committed." << endl;
-          cout << "Maybe you wanted to say '  vcs commit -m 'commit message'  '?" << endl; 
+          cout << "Maybe you wanted to say '  vcs commit -m 'commit message'  '?" << endl;
         }
     return 0;
   }
@@ -150,7 +151,7 @@ cout << "add: " << add_file << endl;
 
   if(strcmp(argv[1], "diff") == 0)
   {
-    
+
     if (argc < 3) // simple vcs diff to compare stagging area(index) and cwd
     {
         vcsdiff(HOME);
@@ -173,8 +174,21 @@ cout << "add: " << add_file << endl;
 
     return 0;
   }
+
   if(strcmp(argv[1], "reset") == 0)
   {
+    if (argc == 2)  // clear staging area
+    {
+      struct stat st;
+      string index_path = HOME + "/.vcs/INDEX";
+      if(stat(&index_path[0], &st) == 0)
+      {
+        if( remove(&index_path[0]) != 0 )
+          perror( "Error deleting file" );
+      }
+      return 0;
+    }
+
     string destination_sha = argv[3];
     cout<<"Reached in VCS.cpp \n";
 

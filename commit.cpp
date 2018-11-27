@@ -213,7 +213,7 @@ void commit(string HOME,string commit_msg)
 
 void match_commit (string curr_sha,string parent_sha,string HOME)
 {
-  cout<<"commit.cpp"<<curr_sha<<"----"<<parent_sha<<endl;
+  //cout<<"commit.cpp"<<curr_sha<<"----"<<parent_sha<<endl;
   Tree curr_tree,parent_tree;
   load_tree(curr_tree, curr_sha, HOME);
   load_tree(parent_tree, parent_sha, HOME);
