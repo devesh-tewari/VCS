@@ -8,40 +8,69 @@ using namespace std;
 void merge_files(Tree&, Tree&, Tree&, Tree&, string);
 void add_files_not_in_t1(Tree&, Tree&, Tree&, string);
 
-bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2)  //return true for fast forward merge
+bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //return true for fast forward merge
 {
-  // unordered_map <string, int> m;
-  // m[c1.sha1]=1;
-  // string temp_parent_sha=c1.parent_sha1;
-  // while(temp_parent_sha.compare(""))
-  // {
-  //   Commit temp_cm;
-  //   load_commit(temp_cm, temp_parent_sha, HOME);
-  //   m[temp_cm.sha1]=1;
-  //   temp_parent_sha=temp_cm.parent_sha1;
-  // }
+  unordered_map <string, int> m;
+  m[c1.sha1]=1;
+  string temp_parent_sha=c1.parent_sha1;
+  while(temp_parent_sha.compare(""))
+  {
+    Commit temp_cm;
+    load_commit(temp_cm, temp_parent_sha, HOME);
+    m[temp_cm.sha1]=1;
+    temp_parent_sha=temp_cm.parent_sha1;
+  }
 
-  // temp_parent_sha=c2.sha1;
-  // while(temp_parent_sha.compare(""))
-  // {
-  //   if(m[temp_parent_sha])
-  //   {
-  //     load_commit(ca, temp_parent_sha, HOME);
-  //     break;
-  //   }
-  //   Commit temp_cm;
-  //   load_commit(temp_cm, temp_parent_sha, HOME);
-  //   temp_parent_sha=temp_cm.parent_sha1;
-  // }
+  temp_parent_sha=c2.sha1;
+  while(temp_parent_sha.compare(""))
+  {
+    if(m[temp_parent_sha])
+    {
+      load_commit(ca, temp_parent_sha, HOME);
+      break;
+    }
+    Commit temp_cm;
+    load_commit(temp_cm, temp_parent_sha, HOME);
+    temp_parent_sha=temp_cm.parent_sha1;
+  }
 
-  // if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
-  //   return true;
+  if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
+    return true;
   return false;
 }
 
 void bash_merge(Blob& cur, Blob& other, Blob& ca, Blob& new_blob)
 {
-  
+  string path1 = ".vcs/temp/merge1";
+  string path2 = ".vcs/temp/merge2";
+  string path3 = ".vcs/temp/merge3";
+  string output_path = ".vcs/temp/merge_op";
+
+  ofstream file1(path1, std::ios::binary | std::ios::out | std::ios::trunc);
+  ofstream file2(path2, std::ios::binary | std::ios::out | std::ios::trunc);
+  ofstream file3(path3, std::ios::binary | std::ios::out | std::ios::trunc);
+  ofstream file4(output_path, std::ios::binary | std::ios::out | std::ios::trunc);
+
+  file4.close ();
+
+  file1 << cur.data;
+  file2 << ca.data;
+  file3 << other.data;
+
+  file1.close();
+  file2.close();
+  file3.close();
+
+  string command = "bash -c \"merge -p .vcs/temp/merge1 .vcs/temp/merge2 .vcs/temp/merge3 > .vcs/temp/merge_op\"";
+
+  //cout << command << endl;
+  system (command.c_str ());
+
+  ifstream op_file (".vcs/temp/merge_op");
+  string str((istreambuf_iterator<char>(op_file)), istreambuf_iterator<char>());
+  op_file.close ();
+
+  new_blob.data = str;
 }
 
 void merge(string other_branch, string HOME)
@@ -67,15 +96,33 @@ void merge(string other_branch, string HOME)
   Commit cm2;
   load_commit(cm2, other_latest_commit, HOME);
 
+  Commit common_ancestor;
+  if (get_common_ancestor (common_ancestor, cm1, cm2, HOME)) //fast forward merge
+  {
+    if (common_ancestor.sha1 == cm1.sha1)
+    {
+      ofstream cur_write (head_str, ios::out | ios::trunc);
+      cur_write << other_latest_commit;
+      cur_write.close ();
+    }
+    else  // ca == cm2
+    {
+      string othr_path = ".vcs/refs/" + other_branch;
+      ofstream othr_write (othr_path, ios::out | ios::trunc);
+      othr_write << cur_latest_commit;
+      othr_write.close ();
+    }
+
+    cout << "Fast Forward Merge" << endl;
+    return;
+  }
+
   cur_latest_commit = cm1.tree_sha1;
   other_latest_commit = cm2.tree_sha1;
 
   Tree t1, t2;
   load_tree(t1, cur_latest_commit, HOME);
   load_tree(t2, other_latest_commit, HOME);
-
-  Commit common_ancestor;
-  get_common_ancestor(common_ancestor, cm1, cm2);
 
   Tree t3;
   load_tree(t3, common_ancestor.tree_sha1, HOME);

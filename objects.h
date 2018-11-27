@@ -75,6 +75,7 @@ public:
   Commit()
   {
     this->timestamp = time(0);   // get time now
+    this->parent_sha1 = "";
     this->second_parent_sha1 = "";
   }
 
