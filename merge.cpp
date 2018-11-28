@@ -10,6 +10,9 @@ void add_files_not_in_t1(Tree&, Tree&, Tree&, string);
 
 bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //return true for fast forward merge
 {
+  //cout << ca.sha1 << endl;
+  cout << c1.sha1 << endl;
+  cout << c2.sha1 << endl;
   unordered_map <string, int> m;
   m[c1.sha1]=1;
   string temp_parent_sha=c1.parent_sha1;
@@ -89,7 +92,7 @@ void merge(string other_branch, string HOME)
   cur_branch.close();
 
   string other_latest_commit = ".vcs/refs/" + other_branch;
-  ifstream othr_branch (head_str);
+  ifstream othr_branch (other_latest_commit);
   getline(othr_branch, other_latest_commit);
   othr_branch.close();
 
