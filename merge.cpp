@@ -5,22 +5,17 @@
 #include "objects.h"
 #include "commit.h"
 #include "serialize.h"
+#include "reset.h"
 using namespace std;
 
 void merge_files(Tree&, Tree&, Tree&, Tree&, string);
 void add_files_not_in_t1(Tree&, Tree&, Tree&, string);
 void update_working_directory_file (string, Blob&);
 
-/*void get_common_ancestor_tree (Tree& CA, Tree& t1, string HOME)
+bool get_common_ancestor(Commit& ca, Commit& c1, Commit& c2, string HOME)  //return true for fast forward merge
 {
-  //assume WD to be in temp/<path including vcs folder name>
-}*/
-
-bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //return true for fast forward merge
-{
-  //cout << ca.sha1 << endl;
-  cout << c1.sha1 << endl;
-  cout << c2.sha1 << endl;
+  //cout << c1.sha1 << endl;
+  //cout << c2.sha1 << endl;
   unordered_map <string, int> m;
   m[c1.sha1]=1;
   string temp_parent_sha=c1.parent_sha1;
@@ -45,9 +40,9 @@ bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //retu
     temp_parent_sha=temp_cm.parent_sha1;
   }
 
-  cout << ca.sha1 << endl;
-  cout << c1.sha1 << endl;
-  cout << c2.sha1 << endl;
+  //cout << ca.sha1 << endl;
+  //cout << c1.sha1 << endl;
+  //cout << c2.sha1 << endl;
   if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
     return true;
   return false;
@@ -72,7 +67,7 @@ void bash_merge(Blob& cur, Blob& other, string ca_path, Blob& new_blob)
   file3.close();
 
   string command = "bash -c \"merge -p .vcs/temp/merge1 " + ca_path + " .vcs/temp/merge3 > .vcs/temp/merge_op\"";
-
+  cout << command << endl;
   //cout << command << endl;
   system (command.c_str ());
 
@@ -136,17 +131,28 @@ void merge(string other_branch, string HOME)
   load_tree(t2, other_latest_commit, HOME);
 
   Tree t3;
-  //get_common_ancestor_tree (t3, t1, HOME);
-
   load_tree(t3, common_ancestor.tree_sha1, HOME);
+
+  int k = HOME.find_last_of ("/");
+  string dir_name = HOME.substr (k+1, HOME.size()-1);
+  //cout << dir_name;
+  string command = "bash -c \"mkdir .vcs/temp/" + dir_name + "\nrsync -Rr ./ .vcs/temp/" + dir_name + "\"";
+  system (command.c_str ());
+  //cout << command << endl;
+  common_ancestor_reset(common_ancestor.sha1, cm1.sha1, HOME);
 
   Tree t4;  // tree for new commit
 
+  //cout << "\n\n\n\n\n\nSIZE\n\n\n";
+  //cout << t1.sha1_pointers.size() << endl;
   merge_files(t1, t2, t3, t4, HOME);
 
   add_files_not_in_t1(t1, t2, t4, HOME);
 
   merge_commit(cm1, cm2, common_ancestor, t4, HOME);
+
+  command = "bash -c \"rm -R .vcs/temp/" + dir_name + "\"";
+  system (command.c_str ());
 }
 
 void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
@@ -166,7 +172,7 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
       {
           int k = t1.pointer_paths[i].find_first_of ("/");
           string actual_path = t1.pointer_paths[i].substr (k+1, t1.pointer_paths[i].size()-k);
-//cout << actual_path <<endl;
+//cout << "ACTUAL: " << actual_path <<endl;
           int itr2_index = itr2 - t2.pointer_paths.begin();
           int itr3_index = itr3 - t3.pointer_paths.begin();
           //string parent_matched_path = *itr;
@@ -186,10 +192,10 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
 
                   Blob b1, b2, b4;
                   load_blob(b1 ,t1.sha1_pointers[i], HOME);
-                  load_blob(b2 ,t2.pointer_paths[i], HOME);
+                  load_blob(b2 ,t2.sha1_pointers[itr2_index], HOME);
 
                   string ca_file_path = ".vcs/temp/" + t1.pointer_paths[i];
-cout << "BASH MERGE" << endl;
+
                   bash_merge(b1, b2, ca_file_path, b4);
 
                   get_blob_sha1(b4);
@@ -211,7 +217,7 @@ cout << "BASH MERGE" << endl;
                   t4.mtime.push_back (t2.mtime[itr2_index]);
 
                   Blob b;
-                  cout << "load:" << matched2_sha;
+                  //cout << "load:" << matched2_sha;
                   load_blob (b, matched2_sha, HOME);
                   update_working_directory_file (actual_path, b);
                 }
@@ -229,8 +235,8 @@ cout << "BASH MERGE" << endl;
               Tree t3_inner;
               Tree t4_inner;
 
-              cout << t1.sha1 << endl;
-              cout << t1.sha1_pointers[i] << endl;
+              //cout << t1.sha1 << endl;
+              //cout << t1.sha1_pointers[i] << endl;
               //cout << matched2_sha << endl;
               //cout << matched3_sha << endl;
 
@@ -285,8 +291,8 @@ void add_files_not_in_t1(Tree& t1, Tree& t2, Tree& t4, string HOME)
 
     if(itr == t1.pointer_paths.end())   // file present in t2 but not in t1
       {
-          int k = t1.pointer_paths[i].find_first_of ("/");
-          string actual_path = t1.pointer_paths[i].substr (k+1, t1.pointer_paths[i].size()-k);
+          int k = t2.pointer_paths[i].find_first_of ("/");
+          string actual_path = t2.pointer_paths[i].substr (k+1, t1.pointer_paths[i].size()-1);
 
           t4.type.push_back(t2.type[i]);
           t4.pointer_paths.push_back(t2.pointer_paths[i]);
@@ -301,10 +307,11 @@ void add_files_not_in_t1(Tree& t1, Tree& t2, Tree& t4, string HOME)
 
           if (t1.type[i] == false)  //if its a blob
           {
+              cout << "IN OTHER BRANCH\n" << t2.pointer_paths[i] << endl;
               t4.sha1_pointers.push_back(t2.sha1_pointers[i]);
 
               Blob b;
-              cout << "load:" << t2.sha1_pointers[i] <<endl;
+              //cout << "load:" << t2.sha1_pointers[i] <<endl;
               load_blob (b, t2.sha1_pointers[i], HOME);
               update_working_directory_file (actual_path, b);
           }
@@ -352,6 +359,7 @@ void add_files_not_in_t1(Tree& t1, Tree& t2, Tree& t4, string HOME)
 
 void update_working_directory_file (string path, Blob& b)
 {
+  cout << "PATH: " << path << endl;
   ofstream file (path, ios::trunc | ios::out);
   file << b.data;
   file.close ();

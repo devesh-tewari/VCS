@@ -91,9 +91,9 @@ string build_tree(Index &INDEX, string HOME)
             {
               tr.type.push_back(false);
               long int mtime = atol(results[4].c_str());
-              cout << mtime << endl;
+              //cout << mtime << endl;
               tr.mtime.push_back( (long int)mtime );
-              cout << tr.mtime.size() << endl;
+              //cout << tr.mtime.size() << endl;
             }
             else
             {
@@ -168,8 +168,10 @@ void commit(string HOME,string commit_msg)
   }
   if(stat(index_path.c_str(), &st ) == 0)
     user = getpwuid(st.st_uid);
+
   Commit cm;
   cm.tree_sha1 = build_tree(INDEX, HOME);
+
   tm* cm_time = localtime(&cm.timestamp);
   //cout << asctime(cm_time) << endl;
 
