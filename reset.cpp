@@ -123,5 +123,6 @@ void reset( string destination_sha , string current_sha , string option ,string 
   load_commit(curr_commit,current_sha, HOME);
   string tree_sha=curr_commit.tree_sha1;
   create_tree_files_into_wd(tree_sha, HOME);
-
 }
+
+void devi_reset( string destination_sha , string current_sha , string option ,string HOME)

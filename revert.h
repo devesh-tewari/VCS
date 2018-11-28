@@ -5,8 +5,9 @@
 using namespace std;
 
 
-void revert(string , string , string ,string);
+void revert(string , string ,string);
 void revertUtil(string ,string ,string );
-string patch(string , string );
+string patch1(string , string );
+void delete_tree_files_of_reverted_commit(string , string , string , string);
 
 #endif
