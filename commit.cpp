@@ -213,7 +213,7 @@ void commit(string HOME,string commit_msg)
 
 void match_commit (string curr_sha,string parent_sha,string HOME)
 {
-  cout<<"commit.cpp"<<curr_sha<<"----"<<parent_sha<<endl;
+  //cout<<"commit.cpp"<<curr_sha<<"----"<<parent_sha<<endl;
   Tree curr_tree,parent_tree;
   load_tree(curr_tree, curr_sha, HOME);
   load_tree(parent_tree, parent_sha, HOME);
@@ -256,7 +256,7 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
   struct stat st;
   struct passwd *user;
 
-  string index_path = HOME + ".vcs/INDEX";
+  string index_path = ".vcs/INDEX";
   if(stat(index_path.c_str(), &st ) == 0)
     user = getpwuid(st.st_uid);
 
@@ -286,7 +286,7 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
                           + asctime(cm_time);
 
   cout << commit_sha_str << endl;
-
+cout << "Merge committed" << endl;
   cm.sha1 = get_string_sha1 (commit_sha_str);
   ofstream branch_write (head_str, ios::out | ios::trunc);
   branch_write << cm.sha1;
@@ -294,11 +294,11 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
   save_commit(cm, HOME);
 
   //cout << cm.parent_sha1;
-  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  /*if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1, HOME);
     match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
-  }
+  }*/
 
 }

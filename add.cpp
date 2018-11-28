@@ -7,12 +7,17 @@
 
 string HOME;
 
-bool check_presence(string path, Index &INDEX)
+bool check_presence(string path, Index &INDEX, unsigned long mtime)
 {
   for(int i = 0; i < INDEX.entries.size(); i++)
   {
-    if(INDEX.entries[i].path == path)
+    if (INDEX.entries[i].mtime == mtime && INDEX.entries[i].path == path)
       return true;
+    else if (INDEX.entries[i].path == path)  //file is modified
+    {
+      INDEX.entries.erase( INDEX.entries.begin() + i );
+      return false;
+    }
   }
   return false;
 }
@@ -130,7 +135,7 @@ int type_and_permissions = srt.st_mode;
     //unsigned long last_modified = (unsigned long)srt.st_mtime;
     //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 
-    if( !check_presence(source, INDEX))
+    if( !check_presence(source, INDEX, (unsigned long)srt.st_mtime) )
       INDEX.entries.push_back( entry );
   }
 }
@@ -156,11 +161,10 @@ void add(vector<string> sources, string home)
   string H;
   for(int i = 0; i < sources.size(); i++)
   {
-    build_index(sources[i], INDEX);  //modify sources to be from HOME only
+    build_index(sources[i], INDEX);
   }
 
   sort(INDEX.entries.begin(), INDEX.entries.end(), cmp);
-  // store index.second to INDEX file
 
   for(int i = 0; i < INDEX.entries.size(); i++)
   {
