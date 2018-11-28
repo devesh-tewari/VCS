@@ -237,7 +237,7 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
                   string delta = diff(parent_blob.data,curr_blob.data);
                   parent_blob.data=delta;
                   cout <<"mai delta hu"<< delta << endl;
-                  save_blob(parent_blob,HOME);
+                  save_blob(parent_blob, HOME);
                 }
 
           }
@@ -294,11 +294,11 @@ cout << "Merge committed" << endl;
   save_commit(cm, HOME);
 
   //cout << cm.parent_sha1;
-  /*if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1, HOME);
     match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
-  }*/
+  }
 
 }
