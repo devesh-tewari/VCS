@@ -36,7 +36,7 @@ void vcsdiff(string HOME)
         //cout << path <<"\n";
         if (!file_exists(path))
         {
-            cout << path << " deleted\n\n";
+            cout <<"------------------------------\n"<< path << " Deleted from Working Directory\n";
             continue;
         }
         string path_sha1 = INDEX.entries[i].sha1;
@@ -57,11 +57,7 @@ void vcsdiff(string HOME)
         file2.close();
         string command = "bash -c \"diff -u " + path + " .vcs/temp/diff2\"";
         //cout << command << endl;
-        string result;
-
-        result = system(command.c_str());
-        if (result != "")
-            cout << result << "\n\n";
+        system(command.c_str());
     }
 }
 

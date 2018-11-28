@@ -15,6 +15,9 @@ get_common_ancestor_tree (Tree& CA, Tree& t1, string HOME)
 
 bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //return true for fast forward merge
 {
+  //cout << ca.sha1 << endl;
+  cout << c1.sha1 << endl;
+  cout << c2.sha1 << endl;
   unordered_map <string, int> m;
   m[c1.sha1]=1;
   string temp_parent_sha=c1.parent_sha1;

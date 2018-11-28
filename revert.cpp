@@ -13,7 +13,7 @@
 using namespace std;
 
 
-string patch( string curr_blob_data, string parent_file_patch)
+string patch1( string curr_blob_data, string parent_file_patch)
 {
   cout<<"Pathch"<<endl; 
   string path1 = ".vcs/temp/data";
@@ -47,6 +47,65 @@ string patch( string curr_blob_data, string parent_file_patch)
 }
 
 
+void delete_tree_files_of_reverted_commit(string curr_sha, string parent_sha, string latest_sha, string HOME)
+{
+  Tree curr_tree,parent_tree,latest_tree;
+  load_tree(latest_tree, latest_sha, HOME);
+  load_tree(curr_tree, curr_sha, HOME);
+  load_tree(parent_tree, parent_sha, HOME);
+  for (int i = 0; i < curr_tree.pointer_paths.size(); i++)
+  {
+    auto itr=find(parent_tree.pointer_paths.begin(),parent_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+    if(itr != parent_tree.pointer_paths.end())   // old entry in current commit
+      {
+        auto it=find(latest_tree.pointer_paths.begin(),latest_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+          if(it == latest_tree.pointer_paths.end())   // old entry in child commit
+          {
+          }
+          else
+          {
+          int itr_index=itr-parent_tree.pointer_paths.begin();
+          string parent_matched_path=*itr;
+          string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
+          if (curr_tree.type[i] == false)  //if its a blob
+          {
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                {
+                 
+                }
+
+          }
+          else
+          {
+              delete_tree_files_of_reverted_commit (curr_tree.sha1_pointers[i],parent_matched_sha,latest_sha,HOME);
+          }
+      }
+      }
+    else
+      {
+          auto it=find(latest_tree.pointer_paths.begin(),latest_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+          if(it != latest_tree.pointer_paths.end())   // old entry in child commit
+          {
+              int it_index=it-latest_tree.pointer_paths.begin();
+              string latest_matched_path=*it;
+              string latest_matched_sha=latest_tree.sha1_pointers[it_index];
+              if (curr_tree.type[i] == false)  //if its a blob
+              {
+                  if(curr_tree.mtime[i] == latest_tree.mtime[it_index])
+                  {
+                    string path;
+                    path=HOME + "/../" + curr_tree.pointer_paths[i];
+                    cout<<path<<endl;
+                    delinit(path);
+                  }
+              }
+          }
+      } 
+  }
+}
+
+
+
 void revertUtil (string curr_sha,string parent_sha,string HOME)
 {
   Tree curr_tree,parent_tree;
@@ -67,30 +126,18 @@ void revertUtil (string curr_sha,string parent_sha,string HOME)
                   Blob curr_blob,parent_blob;
                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
                   load_blob(parent_blob,parent_matched_sha,HOME);
-                  cout<<"patch se pehle"<<curr_blob.data<<endl<<parent_blob.data<<endl;
-                  curr_blob.data = patch(curr_blob.data,parent_blob.data);
-                  // parent_blob.data=curr_blob.data;
-                  cout<<"mai hu"<<curr_blob.data<<endl;
+                  cout<<"patch se pehle current data\n"<<curr_blob.data<<endl<<parent_blob.data<<endl;
+                  curr_blob.data = patch1(curr_blob.data,parent_blob.data);
+                  cout<<"patch ke baad\n"<<curr_blob.data<<endl;
                   save_blob(curr_blob,HOME);
                 }
 
           }
           else
           {
-              resetUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
+              revertUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
           }
       }
-    // else
-    //   {
-          
-    //       string path;
-    //       path=HOME + "/../" + curr_tree.pointer_paths[i];
-    //       cout<<path<<endl;
-    //       delinit(path);
-    //       // string command = "bash -c \"rm -R *itr\"";
-    //       // cout << command << endl;
-    //       // system (command.c_str ());
-    //   }
     
   }
 
@@ -101,21 +148,28 @@ void revert( string destination_commit_sha, string current_commit_sha, string HO
     string latest_commit_sha=current_commit_sha;
     Commit destination_commit;
     load_commit(destination_commit, destination_commit_sha, HOME);
+    string destination_tree_sha=destination_commit.tree_sha1;
     string destination_parent_sha = destination_commit.parent_sha1;
-
-  while(current_commit_sha != destination_commit_sha )
+    string child_commit_sha;
+  while(current_commit_sha != destination_parent_sha )
   {
     Commit current_commit,parent_commit;
     load_commit(current_commit, current_commit_sha, HOME);
     string current_parent_sha = current_commit.parent_sha1;
+    child_commit_sha = current_commit_sha;
     current_commit_sha = current_parent_sha;
   }
- 
-  revertUtil(latest_commit_sha,destination_commit_sha,HOME);
-
-  Commit curr_commit;
+  Commit curr_commit,dest_commit,child_commit;
   load_commit(curr_commit,latest_commit_sha, HOME);
-  string tree_sha=curr_commit.tree_sha1;
-  create_tree_files_into_wd(tree_sha, HOME);
+  string current_tree_sha=curr_commit.tree_sha1;
+  load_commit(dest_commit,current_commit_sha, HOME);
+  string destination_parent_tree_sha=dest_commit.tree_sha1;
+  load_commit(child_commit,child_commit_sha, HOME);
+  string child_tree_sha=child_commit.tree_sha1;
+  revertUtil(current_tree_sha,destination_parent_tree_sha,HOME);
+
+
+  create_tree_files_into_wd(current_tree_sha, HOME);
+  // delete_tree_files_of_reverted_commit(destination_tree_sha,destination_parent_tree_sha,current_tree_sha,HOME);
 
 }
