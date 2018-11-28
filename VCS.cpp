@@ -4,6 +4,9 @@
 #include "status.h"
 #include "commit.h"
 #include "reset.h"
+#include "revert.h"
+#include "objects.h"
+#include "serialize.h"
 #include "vcsdiff.h"
 #include "merge.h"
 #include <sys/types.h>
@@ -20,8 +23,7 @@ int main(int argc, char** argv)
   getcwd(H, PATH_MAX);
   string HOME = "";
   HOME = H;
-  //cout << HOME << endl;
-//cout << argc << endl;
+
   if(strcmp(argv[1], "init") == 0)
   {
     if(argc > 2)
@@ -202,11 +204,44 @@ cout << "add: " << add_file << endl;
     getline(branch_read, current_sha);
     branch_read.close();
 
-
     string option = "";
     cout<<current_sha<<endl<<HOME<<endl<<destination_sha<<endl;
 
     reset( destination_sha , current_sha , option , HOME);
+  }
+
+  if(strcmp(argv[1], "revert") == 0)
+  {
+
+    
+    string destination_sha = argv[2];
+    cout<<"Reached in VCS.cpp \n";
+
+    ifstream head (".vcs/HEAD");
+    string current_branch,current_sha;
+    getline(head, current_branch);
+    head.close();
+
+    ifstream branch_read (current_branch);
+    getline(branch_read, current_sha);
+    branch_read.close();
+
+    cout<<current_sha<<endl<<HOME<<endl<<destination_sha<<endl;
+    Commit destination_commit;
+    load_commit(destination_commit, destination_sha, HOME);
+    string destination_parent_sha = destination_commit.parent_sha1;
+    if (destination_parent_sha=="")
+      {
+        cout<<"Cannot revert 1st commit\n";
+        return 1;
+      }
+    ofstream file(".vcs/temp/t.txt");
+    string command = "bash -c \"vcs add .vcs/temp/t.txt\"";
+    cout << command << endl;
+    system (command.c_str ());
+    commit(HOME,"revert commit");
+    revert( destination_sha , current_sha ,  HOME);
+    remove(".vcs/temp/t.txt");
   }
 
 

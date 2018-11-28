@@ -286,7 +286,7 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
                           + asctime(cm_time);
 
   cout << commit_sha_str << endl;
-
+cout << "Merge committed" << endl;
   cm.sha1 = get_string_sha1 (commit_sha_str);
   ofstream branch_write (head_str, ios::out | ios::trunc);
   branch_write << cm.sha1;
@@ -294,11 +294,11 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
   save_commit(cm, HOME);
 
   //cout << cm.parent_sha1;
-  if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
+  /*if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1, HOME);
     match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
-  }
+  }*/
 
 }

@@ -150,6 +150,7 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
 
   for (int i = 0; i < t1.pointer_paths.size(); i++)
   {
+    cout << i << endl;
     t4.type.push_back(t1.type[i]);
     t4.pointer_paths.push_back(t1.pointer_paths[i]);
     t4.pointer_perm.push_back(t1.pointer_perm[i]);
@@ -158,6 +159,7 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
     auto itr3 = find(t3.pointer_paths.begin(), t3.pointer_paths.end(), t1.pointer_paths[i]);
     if(itr2 != t2.pointer_paths.end() && itr3 != t3.pointer_paths.end())   // file present everywhere
       {
+          cout << "present" << endl;
           int itr2_index = itr2 - t2.pointer_paths.begin();
           int itr3_index = itr3 - t3.pointer_paths.begin();
           //string parent_matched_path = *itr;
@@ -201,11 +203,16 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
               Tree t3_inner;
               Tree t4_inner;
 
+              cout << t1.sha1 << endl;
+              cout << t1.sha1_pointers[i] << endl;
+              //cout << matched2_sha << endl;
+              //cout << matched3_sha << endl;
+
               load_tree(t1_inner, t1.sha1_pointers[i], HOME);
               load_tree(t2_inner, matched2_sha, HOME);
               load_tree(t3_inner, matched3_sha, HOME);
 
-              merge_files (t1, t2, t3, t4_inner, HOME);
+              merge_files (t1_inner, t2_inner, t3_inner, t4_inner, HOME);
 
               t4.sha1_pointers.push_back( t4_inner.sha1 );
           }
@@ -273,7 +280,7 @@ void add_files_not_in_t1(Tree& t1, Tree& t2, Tree& t4, string HOME)
               load_tree(t1_inner, matched_sha, HOME);
               load_tree(t2_inner, t2.sha1_pointers[i], HOME);
 
-              add_files_not_in_t1 (t1, t2, t4_inner, HOME);
+              add_files_not_in_t1 (t1_inner, t2_inner, t4_inner, HOME);
 
               t4.sha1_pointers.push_back( t4_inner.sha1 );
           }

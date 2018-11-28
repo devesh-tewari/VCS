@@ -52,18 +52,7 @@ void deldir(string src)
 
 void delinit(string src)
 {
-  // tokenizer(s);
-  // char cwd[100000];
-  // getcwd(cwd, sizeof(cwd));
-  // string cwdstring=cwd;
-  // string newpath;
-  // string src;
-  // string path=tokens[1];
-  // if(path[0]=='~')
-  // {
-  //   newpath=path.substr(2,path.size()-2);
-  //   src=origin+"/"+newpath;
-  // }
+  cout<<"in delete.cpp\n";
   if(isDir(&src[0]))
     {
       deldir(src);
