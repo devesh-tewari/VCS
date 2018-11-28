@@ -24,7 +24,7 @@ bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //retu
   temp_parent_sha=c2.sha1;
   while(temp_parent_sha.compare(""))
   {
-    if(m[temp_parent_sha])
+    if(m[temp_parent_sha] == 1)
     {
       load_commit(ca, temp_parent_sha, HOME);
       break;
@@ -34,6 +34,9 @@ bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //retu
     temp_parent_sha=temp_cm.parent_sha1;
   }
 
+  cout << ca.sha1 << endl;
+  cout << c1.sha1 << endl;
+  cout << c2.sha1 << endl;
   if(ca.sha1==c1.sha1 || ca.sha1==c2.sha1)
     return true;
   return false;
@@ -114,9 +117,10 @@ void merge(string other_branch, string HOME)
     }
 
     cout << "Fast Forward Merge" << endl;
+    cout << common_ancestor.message<<endl;
     return;
   }
-
+  cout << common_ancestor.message<<endl;
   cur_latest_commit = cm1.tree_sha1;
   other_latest_commit = cm2.tree_sha1;
 
@@ -162,6 +166,10 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
           {
                 if(t1.mtime[i] != t3.mtime[itr2_index] && t2.mtime[i] != t3.mtime[itr3_index])
                 {
+                  cout << t1.pointer_paths[i] << endl;
+                  cout << t2.pointer_paths[i] << endl;
+                  cout << t3.pointer_paths[i] << endl;
+
                   Blob b1, b2, b3, b4;
                   load_blob(b1 ,t1.sha1_pointers[i], HOME);
                   load_blob(b2 ,matched2_sha, HOME);

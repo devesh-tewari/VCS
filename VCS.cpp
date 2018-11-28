@@ -5,6 +5,7 @@
 #include "commit.h"
 #include "reset.h"
 #include "vcsdiff.h"
+#include "merge.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -235,7 +236,7 @@ cout << "add: " << add_file << endl;
       string current_sha;
       getline(branch_read, current_sha);
       branch_read.close ();
-      
+
       ofstream new_branch (branch_path, ios::out);
       new_branch << current_sha;
       new_branch.close ();
@@ -244,6 +245,21 @@ cout << "add: " << add_file << endl;
     ofstream head_write (".vcs/HEAD", ios::out | ios::trunc);
     head_write << branch_path;
     head_write.close ();
+  }
+
+  if(strcmp(argv[1], "merge") == 0)
+  {
+    string other_branch (argv[ argc-1 ]);
+    string branch_path = ".vcs/refs/" + other_branch;
+
+    struct stat st;
+    if(stat(&branch_path[0], &st) != 0)
+    {
+      cout << "No such branch: " << branch_path << endl;
+      return 0;
+    }
+
+    merge (other_branch, HOME);
   }
 
   return 0;

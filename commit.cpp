@@ -256,7 +256,7 @@ void merge_commit(Commit& cur, Commit& other, Commit& ca, Tree& new_tree, string
   struct stat st;
   struct passwd *user;
 
-  string index_path = HOME + ".vcs/INDEX";
+  string index_path = ".vcs/INDEX";
   if(stat(index_path.c_str(), &st ) == 0)
     user = getpwuid(st.st_uid);
 
