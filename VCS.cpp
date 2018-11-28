@@ -208,6 +208,7 @@ cout << "add: " << add_file << endl;
     cout<<current_sha<<endl<<HOME<<endl<<destination_sha<<endl;
 
     reset( destination_sha , current_sha , option , HOME);
+    // devi_reset( destination_sha , current_sha ,  HOME);
   }
 
   if(strcmp(argv[1], "revert") == 0)
@@ -223,7 +224,7 @@ cout << "add: " << add_file << endl;
     head.close();
 
     ifstream branch_read (current_branch);
-    getline(branch_read, current_sha);
+    getline(branch_read , current_sha);
     branch_read.close();
 
     cout<<current_sha<<endl<<HOME<<endl<<destination_sha<<endl;

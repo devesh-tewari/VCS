@@ -8,10 +8,10 @@ using namespace std;
 void merge_files(Tree&, Tree&, Tree&, Tree&, string);
 void add_files_not_in_t1(Tree&, Tree&, Tree&, string);
 
-get_common_ancestor_tree (Tree& CA, Tree& t1, string HOME)
-{
-  //assume WD to be in temp/<path including vcs folder name>
-}
+// get_common_ancestor_tree (Tree& CA, Tree& t1, string HOME)
+// {
+//   //assume WD to be in temp/<path including vcs folder name>
+// }
 
 bool get_common_ancestor(Commit& ca, Commit& c1,Commit& c2, string HOME)  //return true for fast forward merge
 {
@@ -137,7 +137,7 @@ void merge(string other_branch, string HOME)
   load_tree(t2, other_latest_commit, HOME);
 
   Tree t3;
-  get_common_ancestor_tree (t3, t1, HOME);
+  // get_common_ancestor_tree (t3, t1, HOME);
 
   //load_tree(t3, common_ancestor.tree_sha1, HOME);
 

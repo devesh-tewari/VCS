@@ -15,9 +15,8 @@ using namespace std;
 
 
 string patch( string curr_blob_data, string parent_file_patch)
-  //curr_blob.data,parent_blob.data)
 {
-  cout<<"Pathch"<<endl; 
+  cout<<"Patch"<<endl; 
   string path1 = ".vcs/temp/data";
   string path2 = ".vcs/temp/patchfile.patch";
   ofstream file3(path1, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -95,8 +94,6 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
       }
     
   }
-
-
 }
 
 void reset( string destination_sha , string current_sha , string option ,string HOME)
@@ -124,3 +121,83 @@ void reset( string destination_sha , string current_sha , string option ,string 
   string tree_sha=curr_commit.tree_sha1;
   create_tree_files_into_wd(tree_sha, HOME);
 }
+
+void devi_reset(string destination_sha , string current_sha , string HOME)
+{
+  while( current_sha != destination_sha )
+  {
+    Commit current_commit,parent_commit;
+    string parent_tree_sha , parent_sha , current_tree_sha;
+    load_commit( current_commit , current_sha, HOME);
+    
+    parent_sha = current_commit.parent_sha1;
+    current_tree_sha = current_commit.tree_sha1;
+    
+    load_commit(parent_commit, parent_sha, HOME);
+    
+    parent_tree_sha = parent_commit.tree_sha1;
+    
+    deviResetUtil ( current_tree_sha, parent_tree_sha, HOME);
+    
+    current_sha = parent_sha;
+  }
+}
+
+void deviResetUtil (string curr_sha,string parent_sha,string HOME)
+{
+  Tree curr_tree,parent_tree;
+  load_tree(curr_tree, curr_sha, HOME);
+  load_tree(parent_tree, parent_sha, HOME);
+  for (int i = 0; i < curr_tree.pointer_paths.size(); i++)
+  {
+    auto itr=find(parent_tree.pointer_paths.begin(),parent_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+    if(itr != parent_tree.pointer_paths.end())   // old entry in current commit
+      {
+          int itr_index=itr-parent_tree.pointer_paths.begin();
+          string parent_matched_path=*itr;
+          string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
+          if (curr_tree.type[i] == false)  //if its a blob
+          {
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                {
+                  string file_to_patch_path,output;
+                  file_to_patch_path = ".vcs/temp/" + curr_tree.pointer_paths[i];
+                  ifstream myfile (file_to_patch_path);
+                  cout<<file_to_patch_path<<endl;
+                  string data="";
+                  string line;
+                  if (myfile.is_open())
+                  {
+                    while ( getline (myfile,line) )
+                    {
+                      data+=line;
+                      data+="\n";
+                    }
+                    myfile.close();
+                  }
+                  else cout << "Unable to open file";
+                  cout<<"file data  :"<<data<<endl; 
+                  Blob parent_blob;
+                  load_blob(parent_blob,parent_matched_sha,HOME);
+                  output = patch(data,parent_blob.data);
+                  ofstream writefile(file_to_patch_path,ios::out|ios::trunc);
+                  writefile << output;
+                  writefile.close();
+                }
+
+          }
+          else
+          {
+              deviResetUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
+          }
+      }
+    else
+      {
+          string path;
+          path=HOME + "/../" + curr_tree.pointer_paths[i];
+          cout<<path<<endl;
+          delinit(path);
+      }    
+  }
+}
+
