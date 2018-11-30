@@ -94,11 +94,19 @@ string build_tree(Index &INDEX, string HOME)
               //cout << mtime << endl;
               tr.mtime.push_back( (long int)mtime );
               //cout << tr.mtime.size() << endl;
+
+              Blob bl1;
+              load_blob (bl1, results[2], HOME);
+              if (is_binary (bl1))
+                tr.is_binary_file.push_back (true);
+              else
+                tr.is_binary_file.push_back (false);
             }
             else
             {
               tr.type.push_back(true);
               tr.mtime.push_back( 0 );
+              tr.is_binary_file.push_back (false);
             }
         }
         k = depth[i].second.find_last_of("/");
@@ -106,7 +114,7 @@ string build_tree(Index &INDEX, string HOME)
         umap[parent] = umap[parent]
                        + to_string(tr.type_and_permissions) + " "
                        + "tree "
-                       + tr.sha1 + " " + depth[i].second
+                       + tr.sha1 + " " + depth[i].second +
                        + "\n";
 
         save_tree(tr, HOME);
@@ -207,7 +215,8 @@ void commit(string HOME,string commit_msg)
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1,HOME);
-    match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
+    if (cmparent.is_new_branch == false)
+      match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
   }
 
 }
@@ -229,7 +238,8 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
           if (curr_tree.type[i] == false)  //if its a blob
           {
-                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                if (curr_tree.mtime[i] != parent_tree.mtime[itr_index]
+                    && !curr_tree.is_binary_file[i])
                 {
                   Blob curr_blob,parent_blob;
                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
@@ -237,8 +247,7 @@ void match_commit (string curr_sha,string parent_sha,string HOME)
                   //cout << parent_blob.data << endl;
                   //cout << curr_blob.data << endl;
                   string delta = diff(parent_blob.data,curr_blob.data);
-                  parent_blob.data=delta;
-                  cout <<"mai delta hu"<< delta << endl;
+                  parent_blob.data = delta;
                   save_blob(parent_blob, HOME);
                 }
 
@@ -299,8 +308,9 @@ cout << "Merge committed" << endl;
   if (cm.parent_sha1 != "")    // update parent commit's blobs to deltas
   {
     Commit cmparent;
-    load_commit(cmparent, cm.parent_sha1, HOME);
-    match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
+    load_commit (cmparent, cm.parent_sha1, HOME);
+    if (cmparent.is_new_branch == false)
+      match_commit(cm.tree_sha1, cmparent.tree_sha1, HOME);
   }
 
 }

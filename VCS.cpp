@@ -75,7 +75,7 @@ int main(int argc, char **argv)
   {
       printf("\033[0;31m"); //Set the text to the color red
       cout << "fatal: not a vcs repository: .vcs" << endl;
-      printf("\033[0m"); //Resets the text to default color        
+      printf("\033[0m"); //Resets the text to default color
       return 0;
   }
 
@@ -159,6 +159,48 @@ int main(int argc, char **argv)
     return 0;
   }
 
+  if(strcmp(argv[1], "checkout") == 0 || (strcmp(argv[1], "-b") == 0 && strcmp(argv[2], "checkout") == 0))
+  {
+    string branch_path (argv[ argc-1 ]);
+    branch_path = ".vcs/refs/" + branch_path;
+
+    if (argc == 3) // check if branch exists
+    {
+      struct stat st;
+      if(stat(&branch_path[0], &st) != 0)
+      {
+        cout << "No such branch: " << branch_path << endl;
+        return 0;
+      }
+    }
+
+    ifstream head (".vcs/HEAD");
+    string head_str;
+    getline (head, head_str);
+    head.close ();
+
+    ifstream branch_read (head_str);
+    string current_sha;
+    getline(branch_read, current_sha);
+    branch_read.close ();
+
+    Commit cur_commit;
+    load_commit (cur_commit, current_sha, HOME);
+    cur_commit.is_new_branch = true;
+    save_commit (cur_commit, HOME);
+
+    if (argc == 4)
+    {
+      ofstream new_branch (branch_path, ios::out);
+      new_branch << current_sha;
+      new_branch.close ();
+    }
+
+    ofstream head_write (".vcs/HEAD", ios::out | ios::trunc);
+    head_write << branch_path;
+    head_write.close ();
+  }
+
   if (strcmp(argv[1], "diff") == 0)
   {
 
@@ -230,8 +272,8 @@ int main(int argc, char **argv)
     {
       printf("\033[0;31m"); //Set the text to the color red
       cout << "Wrong destination sha.\n";
-      printf("\033[0m"); //Resets the text to default color     
-      
+      printf("\033[0m"); //Resets the text to default color
+
       return 1;
     }
     Commit destination_commit;
@@ -241,8 +283,8 @@ int main(int argc, char **argv)
     {
       printf("\033[0;31m"); //Set the text to the color red
       cout << "Cannot revert 1st commit.\n";
-      printf("\033[0m"); //Resets the text to default color     
-      
+      printf("\033[0m"); //Resets the text to default color
+
       return 1;
     }
     ifstream head(".vcs/HEAD");
@@ -346,7 +388,7 @@ void show_available_commands()
   cout << "\tstatus\t\tShow the working tree status\n\n";
 
   cout << "grow, mark and tweak your common history\n";
-  cout << "\tcheckout\tSwitch branch or crate new branch\n";
+  cout << "\tcheckout\tSwitch branch or create new branch\n";
   cout << "\tcommit\t\tRecord changes to the repository\n";
   cout << "\tdiff\t\tShow changes between index, commit and working tree\n";
   cout << "\tmerge\t\tJoin two or more development histories together\n";
