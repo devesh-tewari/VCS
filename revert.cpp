@@ -119,7 +119,8 @@ void RevertUtil (string curr_sha,string parent_sha,string HOME)
           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
           if (curr_tree.type[i] == false)  //if its a blob
           {
-                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index] ) 
+                // && !parent_tree.is_binary_file[itr_index] )
                 {
                   string file_to_patch_path,output;
                   file_to_patch_path = "../" + curr_tree.pointer_paths[i];

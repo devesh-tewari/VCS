@@ -224,7 +224,8 @@ int main(int argc, char **argv)
   {
     string destination_sha = argv[2];
     struct stat st;
-    string index_path = "/.vcs/objects/" + destination_sha;
+    string index_path = HOME + "/.vcs/objects/" + destination_sha;
+    cout<<index_path<<endl;   
     if (stat(&index_path[0], &st) != 0)
     {
       printf("\033[0;31m"); //Set the text to the color red

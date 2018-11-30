@@ -44,6 +44,7 @@ public:
   vector<string> pointer_perm;
   vector<long int> mtime;
   vector<bool> type; // 0 for blob and 1 for tree
+  vector<bool> is_binary_file;
 
   Tree() {}
 
@@ -71,12 +72,14 @@ public:
   string committer;
   time_t timestamp;
   string message;
+  bool is_new_branch;
 
   Commit()
   {
     this->timestamp = time(0);   // get time now
     this->parent_sha1 = "";
     this->second_parent_sha1 = "";
+    this->is_new_branch = false;
   }
 
   template <class Archive>
