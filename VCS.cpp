@@ -159,48 +159,6 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  if(strcmp(argv[1], "checkout") == 0 || (strcmp(argv[1], "-b") == 0 && strcmp(argv[2], "checkout") == 0))
-  {
-    string branch_path (argv[ argc-1 ]);
-    branch_path = ".vcs/refs/" + branch_path;
-
-    if (argc == 3) // check if branch exists
-    {
-      struct stat st;
-      if(stat(&branch_path[0], &st) != 0)
-      {
-        cout << "No such branch: " << branch_path << endl;
-        return 0;
-      }
-    }
-
-    ifstream head (".vcs/HEAD");
-    string head_str;
-    getline (head, head_str);
-    head.close ();
-
-    ifstream branch_read (head_str);
-    string current_sha;
-    getline(branch_read, current_sha);
-    branch_read.close ();
-
-    Commit cur_commit;
-    load_commit (cur_commit, current_sha, HOME);
-    cur_commit.is_new_branch = true;
-    save_commit (cur_commit, HOME);
-
-    if (argc == 4)
-    {
-      ofstream new_branch (branch_path, ios::out);
-      new_branch << current_sha;
-      new_branch.close ();
-    }
-
-    ofstream head_write (".vcs/HEAD", ios::out | ios::trunc);
-    head_write << branch_path;
-    head_write.close ();
-  }
-
   if (strcmp(argv[1], "diff") == 0)
   {
 
@@ -303,10 +261,14 @@ int main(int argc, char **argv)
     commit(HOME, "revert commit");
   }
 
+
   if (strcmp(argv[1], "log") == 0)
   {
     log(HOME);
+    return 0;
   }
+
+
   if (strcmp(argv[1], "checkout") == 0 || (strcmp(argv[1], "-b") == 0 && strcmp(argv[2], "checkout") == 0))
   {
     string branch_path(argv[argc - 1]);
@@ -334,7 +296,7 @@ int main(int argc, char **argv)
 
     Commit cur_commit;
     load_commit(cur_commit, current_sha, HOME);
-    // cur_commit.is_new_branch = true;
+    cur_commit.is_new_branch = true;
     save_commit(cur_commit, HOME);
 
     if (argc == 4)
@@ -347,6 +309,8 @@ int main(int argc, char **argv)
     ofstream head_write(".vcs/HEAD", ios::out | ios::trunc);
     head_write << branch_path;
     head_write.close();
+
+    return 0;
   }
 
   if (strcmp(argv[1], "merge") == 0)
