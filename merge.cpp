@@ -555,32 +555,40 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
 
           if (t1.type[i] == false)  //if its a blob
           {
-                if (t1.mtime[i] != t3.mtime[itr2_index]
-                    && t2.mtime[i] != t3.mtime[itr3_index]) /* If file changed
-                                                              in both branches*/
+                if (t1.mtime[i] != t3.mtime[itr3_index]
+                    && t2.mtime[itr2_index] != t3.mtime[itr3_index]) /* If file
+                                                      changed in both branches*/
                 {
-                  cout << t1.pointer_paths[i] << endl;
-                  cout << t2.pointer_paths[itr2_index] << endl;
-                  cout << t3.pointer_paths[itr3_index] << endl;
+                  if (!t1.is_binary_file[i])
+                  {
+                    cout << t1.pointer_paths[i] << endl;
+                    cout << t2.pointer_paths[itr2_index] << endl;
+                    cout << t3.pointer_paths[itr3_index] << endl;
 
-                  Blob b1, b2, b3, b4;
-                  load_blob(b1 ,t1.sha1_pointers[i], HOME);
-                  load_blob(b2 ,t2.sha1_pointers[itr2_index], HOME);
-                  load_blob(b2 ,t2.sha1_pointers[itr3_index], HOME);
+                    Blob b1, b2, b3, b4;
+                    load_blob(b1 ,t1.sha1_pointers[i], HOME);
+                    load_blob(b2 ,t2.sha1_pointers[itr2_index], HOME);
+                    load_blob(b2 ,t2.sha1_pointers[itr3_index], HOME);
 
-                  bash_merge(b1, b2, b3, b4);
+                    bash_merge(b1, b2, b3, b4);
 
-                  get_blob_sha1(b4);
-                  t4.sha1_pointers.push_back( b4.sha1 );
-                  //cout << delta << endl;
-                  save_blob(b4 ,HOME);
+                    get_blob_sha1(b4);
+                    t4.sha1_pointers.push_back( b4.sha1 );
+                    //cout << delta << endl;
+                    save_blob(b4 ,HOME);
 
-                  update_working_directory_file (actual_path, b4);
+                    update_working_directory_file (actual_path, b4);
 
-                  struct stat st;
-                  string merged_blob_path = ".vcs/objects/" + b4.sha1;
-                  stat(&merged_blob_path[0], &st);
-                  t4.mtime.push_back ((unsigned long)st.st_mtime);
+                    struct stat st;
+                    string merged_blob_path = ".vcs/objects/" + b4.sha1;
+                    stat(&merged_blob_path[0], &st);
+                    t4.mtime.push_back ((unsigned long)st.st_mtime);
+                  }
+                  else
+                  {
+                    t4.sha1_pointers.push_back( t1.sha1_pointers[i] );
+                    t4.mtime.push_back (t1.mtime[i]);
+                  }
                 }
                 // if changed only in other branch
                 else if(t2.mtime[itr2_index] != t3.mtime[itr3_index])
