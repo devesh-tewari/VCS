@@ -9,11 +9,30 @@
 #include "objects.h"
 #include "serialize.h"
 #include "diff.h"
+#include <dirent.h>
 using namespace std;
 
 void add_to_map(string ,string ,IndexEntry& ,int );
 void match_commit (string ,string,string);
+void check_remainingFiles(string ,unordered_map <string,int> );
+void match_commit_and_cwd_util(string ,string ,string );
 
+
+bool matched;
+
+bool directory(string path)
+{
+    //cout <<"isdir : "<<path<<"\n";
+    struct stat buf;
+    stat(&path[0], &buf);
+    return S_ISDIR(buf.st_mode);
+}
+
+bool file_existss(const std::string &name)
+{
+    ifstream f(name.c_str());
+    return f.good();
+}
 
 bool sortinrev(const pair<int,string> &a,const pair<int,string> &b)
 {
@@ -312,5 +331,110 @@ cout << "Merge committed" << endl;
     if (cmparent.is_new_branch == false)
       match_commit(cm.tree_sha1, cmparent.tree_sha1, HOME);
   }
+
+}
+
+
+void check_remainingFiles(string d_path,unordered_map <string,int> m)
+{
+    
+    int k=d_path.find_first_of("/");
+    d_path=d_path.substr(k+1,d_path.size()-k-1);
+    //cout <<"-------------"<<d_path<<"\n";
+    const char *dir_path_c = &d_path[0];
+    DIR *dr = opendir(dir_path_c);
+    struct dirent *de;
+
+    if (dr == NULL) // opendir returns NULL if couldn't open directory
+    {
+      cout << "Could not open directory " << d_path;
+      return;
+    }
+
+    struct stat st;
+    while ((de = readdir(dr)) != NULL)
+    {
+      string file_path;
+      if(d_path.compare("."))  
+        file_path = d_path + "/" + (de->d_name);
+      else
+        file_path = (de->d_name);
+      string file_name=de->d_name;
+      if(file_name.compare(".") && file_name.compare("..")  && file_name.compare(".vcs") && m[file_path]!=1 && !directory(file_path))
+      {
+          //cout<<"remaining"<<file_path<<"\n";
+          matched=false;
+          return;
+      }    
+    }
+}
+void match_commit_and_cwd_util(string treesha,string dir_path,string HOME)
+{
+    if(matched==false)  return;
+    Tree curr_tree;
+    load_tree(curr_tree, treesha, HOME);
+
+    unordered_map <string,int> m;
+    for (int i = 0; i < curr_tree.pointer_paths.size(); i++)
+    {
+        string path = curr_tree.pointer_paths[i];
+        int k=path.find_first_of("/");
+        path=path.substr(k+1,path.size()-k-1);
+        //cout <<"map me daala : "<<path<<"\n";
+        m[path]=1;
+        if (curr_tree.type[i] == false) //if its a blob
+        {
+            
+            //cout << path <<"\n";
+            if (!file_existss(path))
+            {
+                //cout <<path;
+                matched=false;
+                return;
+            } 
+
+            struct stat st;
+            stat(&path[0], &st);
+            if ((unsigned long)st.st_mtime != curr_tree.mtime[i])
+            {
+                //cout <<"time"<<path<<"\n";
+                matched=false;
+                return;
+            }
+            
+        }
+        else
+        {
+            match_commit_and_cwd_util(curr_tree.sha1_pointers[i],curr_tree.pointer_paths[i],HOME);
+        }
+    }
+
+    if(dir_path.compare(HOME)==0)   check_remainingFiles("/.",m);
+    else check_remainingFiles(dir_path,m);
+    
+    
+
+}
+
+bool match_commit_and_cwd(string HOME)
+{
+    matched=true;
+    ifstream head(".vcs/HEAD");
+    string head_str;
+    getline(head, head_str);
+    head.close();
+
+    ifstream branch_read(head_str);
+    string commit_sha;
+    getline(branch_read, commit_sha);
+    branch_read.close();
+
+    //cout << commit_sha << "\n";
+
+    Commit cm;
+    load_commit(cm, commit_sha, HOME);
+    match_commit_and_cwd_util(cm.tree_sha1,HOME,HOME);
+
+    return matched;
 
 }
