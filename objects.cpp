@@ -76,6 +76,7 @@ bool is_binary (Blob& bl)
     {
       flag = true;
     }
+    i++;
   }
   return flag;
 }
