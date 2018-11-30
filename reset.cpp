@@ -63,7 +63,8 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
           if (curr_tree.type[i] == false)  //if its a blob
           {
-                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index] 
+                && !curr_tree.is_binary_file[itr_index] )
                 {
                   Blob curr_blob,parent_blob;
                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
@@ -98,28 +99,57 @@ void resetUtil (string curr_sha,string parent_sha,string HOME)
 
 void reset( string destination_sha , string current_sha , string option ,string HOME)
 {
-  while(current_sha != destination_sha )
+  Commit dest_commit;
+  load_commit(dest_commit, destination_sha, HOME);
+  string dest_tree_sha=dest_commit.tree_sha1;
+  Tree dest_tree;
+  load_tree(dest_tree,dest_tree_sha,HOME);
+  if (dest_commit.is_new_branch==true)
+    {
+      for( int i=0 ; i < dest_tree.pointer_paths.size() ; i++ )
+      {
+        string path;
+        path=HOME + "/../" + dest_tree.pointer_paths[i];
+        cout<<path<<endl;
+        delinit(path);
+      }
+      create_tree_files_into_wd(dest_tree_sha, HOME);
+    }
+  else
   {
-    Commit current_commit,parent_commit;
-    load_commit(current_commit, current_sha, HOME);
-    string parent_sha = current_commit.parent_sha1;
-    string current_tree_sha=current_commit.tree_sha1;
-    load_commit(parent_commit, parent_sha, HOME);
-    string parent_tree_sha=parent_commit.tree_sha1;
-    resetUtil ( current_tree_sha, parent_tree_sha, HOME);
-    current_sha = parent_sha;
-    ifstream head (".vcs/HEAD");
-    string head_str;
-    getline(head, head_str);
-    head.close();
-    ofstream branch_write (head_str, ios::out | ios::trunc);
-    branch_write << current_sha;
-    branch_write.close();
+    string latest_commit_sha = current_sha;
+     while(latest_commit_sha != destination_sha )
+      {
+        Commit current_commit,parent_commit;
+        load_commit(current_commit, latest_commit_sha , HOME);
+        if(current_commit.is_new_branch==true)
+          current_sha=latest_commit_sha;
+        string current_parent_sha = current_commit.parent_sha1;
+        latest_commit_sha = current_parent_sha;
+      }
+      while(current_sha != destination_sha )
+      {
+        Commit current_commit,parent_commit;
+        load_commit(current_commit, current_sha, HOME);
+        string parent_sha = current_commit.parent_sha1;
+        string current_tree_sha=current_commit.tree_sha1;
+        load_commit(parent_commit, parent_sha, HOME);
+        string parent_tree_sha=parent_commit.tree_sha1;
+        resetUtil ( current_tree_sha, parent_tree_sha, HOME);
+        current_sha = parent_sha;
+        ifstream head (".vcs/HEAD");
+        string head_str;
+        getline(head, head_str);
+        head.close();
+        ofstream branch_write (head_str, ios::out | ios::trunc);
+        branch_write << current_sha;
+        branch_write.close();
+      }
+      Commit curr_commit;
+      load_commit(curr_commit,current_sha, HOME);
+      string tree_sha=curr_commit.tree_sha1;
+      create_tree_files_into_wd(tree_sha, HOME);
   }
-  Commit curr_commit;
-  load_commit(curr_commit,current_sha, HOME);
-  string tree_sha=curr_commit.tree_sha1;
-  create_tree_files_into_wd(tree_sha, HOME);
 }
 
 void common_ancestor_reset(string destination_sha , string current_sha , string HOME)
@@ -158,7 +188,8 @@ void deviResetUtil (string curr_sha,string parent_sha,string HOME)
           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
           if (curr_tree.type[i] == false)  //if its a blob
           {
-                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index]    
+                && !parent_tree.is_binary_file[itr_index] )
                 {
                   string file_to_patch_path,output;
                   file_to_patch_path = ".vcs/temp/" + curr_tree.pointer_paths[i];
