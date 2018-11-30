@@ -15,7 +15,7 @@ using namespace std;
 
 string patch1( string curr_blob_data, string parent_file_patch)
 {
-  cout<<"Pathch"<<endl; 
+  cout<<"Patch"<<endl; 
   string path1 = ".vcs/temp/data";
   string path2 = ".vcs/temp/patchfile.patch";
   ofstream file3(path1, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -104,9 +104,7 @@ void delete_tree_files_of_reverted_commit(string curr_sha, string parent_sha, st
   }
 }
 
-
-
-void revertUtil (string curr_sha,string parent_sha,string HOME)
+void RevertUtil (string curr_sha,string parent_sha,string HOME)
 {
   Tree curr_tree,parent_tree;
   load_tree(curr_tree, curr_sha, HOME);
@@ -123,26 +121,84 @@ void revertUtil (string curr_sha,string parent_sha,string HOME)
           {
                 if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
                 {
-                  Blob curr_blob,parent_blob;
-                  load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
+                  string file_to_patch_path,output;
+                  file_to_patch_path = "../" + curr_tree.pointer_paths[i];
+                  ifstream myfile (file_to_patch_path);
+                  cout<<file_to_patch_path<<endl;
+                  string data="";
+                  string line;
+                  if (myfile.is_open())
+                  {
+                    while ( getline (myfile,line) )
+                    {
+                      data+=line;
+                      data+="\n";
+                    }
+                    myfile.close();
+                  }
+                  else cout << "Unable to open file";
+                  cout<<"file data  :"<<data<<endl;
+                  Blob parent_blob;
                   load_blob(parent_blob,parent_matched_sha,HOME);
-                  cout<<"patch se pehle current data\n"<<curr_blob.data<<endl<<parent_blob.data<<endl;
-                  curr_blob.data = patch1(curr_blob.data,parent_blob.data);
-                  cout<<"patch ke baad\n"<<curr_blob.data<<endl;
-                  save_blob(curr_blob,HOME);
+                  output = patch(data,parent_blob.data);
+                  ofstream writefile(file_to_patch_path,ios::out|ios::trunc);
+                  writefile << output;
+                  writefile.close();
                 }
 
           }
           else
           {
-              revertUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
+              RevertUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
           }
       }
-    
+    else
+      {
+          string path;
+          path=HOME + "/../" + curr_tree.pointer_paths[i];
+          cout<<path<<endl;
+          delinit(path);
+      }
   }
-
-
 }
+
+// void revertUtil (string curr_sha,string parent_sha,string HOME)
+// {
+//   Tree curr_tree,parent_tree;
+//   load_tree(curr_tree, curr_sha, HOME);
+//   load_tree(parent_tree, parent_sha, HOME);
+//   for (int i = 0; i < curr_tree.pointer_paths.size(); i++)
+//   {
+//     auto itr=find(parent_tree.pointer_paths.begin(),parent_tree.pointer_paths.end(),curr_tree.pointer_paths[i]);
+//     if(itr != parent_tree.pointer_paths.end())   // old entry in current commit
+//       {
+//           int itr_index=itr-parent_tree.pointer_paths.begin();
+//           string parent_matched_path=*itr;
+//           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
+//           if (curr_tree.type[i] == false)  //if its a blob
+//           {
+//                 if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
+//                 {
+//                   Blob curr_blob,parent_blob;
+//                   load_blob(curr_blob,curr_tree.sha1_pointers[i],HOME);
+//                   load_blob(parent_blob,parent_matched_sha,HOME);
+//                   cout<<"patch se pehle current data\n"<<curr_blob.data<<endl<<parent_blob.data<<endl;
+//                   curr_blob.data = patch1(curr_blob.data,parent_blob.data);
+//                   cout<<"patch ke baad\n"<<curr_blob.data<<endl;
+//                   save_blob(curr_blob,HOME);
+//                 }
+
+//           }
+//           else
+//           {
+//               revertUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
+//           }
+//       }
+    
+//   }
+
+
+// }
 void revert( string destination_commit_sha, string current_commit_sha, string HOME)
 {
     string latest_commit_sha=current_commit_sha;
@@ -166,10 +222,10 @@ void revert( string destination_commit_sha, string current_commit_sha, string HO
   string destination_parent_tree_sha=dest_commit.tree_sha1;
   load_commit(child_commit,child_commit_sha, HOME);
   string child_tree_sha=child_commit.tree_sha1;
-  revertUtil(current_tree_sha,destination_parent_tree_sha,HOME);
+  RevertUtil(current_tree_sha,destination_parent_tree_sha,HOME);
 
 
-  create_tree_files_into_wd(current_tree_sha, HOME);
+  // create_tree_files_into_wd(current_tree_sha, HOME);
   // delete_tree_files_of_reverted_commit(destination_tree_sha,destination_parent_tree_sha,current_tree_sha,HOME);
 
 }

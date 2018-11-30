@@ -419,7 +419,7 @@ bool get_common_ancestor(Commit& ca, Commit& c1, Commit& c2, string HOME)  //ret
 void bash_merge(Blob& cur, Blob& other, Blob& ca, Blob& new_blob)
 {
   string path1 = ".vcs/temp/merge1";
-  string path1 = ".vcs/temp/merge2";
+  string path2 = ".vcs/temp/merge2";
   string path3 = ".vcs/temp/merge3";
   string output_path = ".vcs/temp/merge_op";
 
