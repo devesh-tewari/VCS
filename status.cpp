@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+int home_str_size;
+
 void check_untracked_files(unordered_map<string, bool> &paths, string source)
 {
   struct stat srt;
@@ -66,13 +68,14 @@ void check_untracked_files(unordered_map<string, bool> &paths, string source)
   {
     int k = source.find_last_of("/");
     string file_name = source.substr(k + 1, source.size() - 1);
+    source = source.substr(home_str_size + 1, source.size() - home_str_size);
     if (file_name.compare("INDEX") && paths.find(source) == paths.end())
     {
       printf("\033[0;31m"); //Set the text to the color red
       cout << "Untracked File: " << source << endl;
-      printf("\033[0m"); //Resets the text to default color     
-      
-      
+      printf("\033[0m"); //Resets the text to default color
+
+
     }
   }
 }
@@ -97,8 +100,8 @@ void match_tree(Tree tr, string HOME, unordered_map<string, bool> &paths)
         {
           printf("\033[0;31m"); //Set the text to the color red
           cout << "Modified: " << tr.pointer_paths[i] << endl;
-          printf("\033[0m"); //Resets the text to default color     
-          
+          printf("\033[0m"); //Resets the text to default color
+
         }
         //cout << path << endl;
       }
@@ -107,7 +110,7 @@ void match_tree(Tree tr, string HOME, unordered_map<string, bool> &paths)
         printf("\033[0;31m"); //Set the text to the color red
         cout << "Deleted: " << tr.pointer_paths[i] << endl;
         printf("\033[0m"); //Resets the text to default color
-        
+
       }
       paths.insert(make_pair(path, true));
     }
@@ -124,6 +127,7 @@ void match_tree(Tree tr, string HOME, unordered_map<string, bool> &paths)
 
 void status(string HOME)
 {
+  home_str_size = HOME.size();
   int i;
   Index INDEX;
   struct stat st;
@@ -148,7 +152,7 @@ void status(string HOME)
   getline(branch_read, last_commit_sha);
   branch_read.close();
 
-  if (last_commit_sha != "")
+  if (last_commit_sha.size() > 38)
   {
     commit = true;
   }
@@ -157,16 +161,19 @@ void status(string HOME)
 
   if (!add && !commit)
   {
-    //print all files as untracked
+    unordered_map<string, bool> paths;
+    check_untracked_files(paths, HOME);
   }
 
   if (add && !commit)
   {
     string file_path;
     unordered_map<string, bool> paths;
+
     for (i = 0; i < INDEX.entries.size(); i++)
     {
-      file_path = HOME + "/" + INDEX.entries[i].path;
+      file_path = INDEX.entries[i].path;
+      paths.insert(make_pair(file_path, true));
       struct stat st;
       if (stat(&file_path[0], &st) == 0)
       {
@@ -188,7 +195,7 @@ void status(string HOME)
         printf("\033[0m"); //Resets the text to default color
 
       }
-      paths.insert(make_pair(file_path, true));
+
     }
 
     check_untracked_files(paths, HOME);
@@ -196,6 +203,7 @@ void status(string HOME)
 
   if (add && commit)
   {
+    cout << "Status for commit\n" << endl;
     Commit cm;
     load_commit(cm, last_commit_sha, HOME);
     Tree tr;
@@ -204,5 +212,40 @@ void status(string HOME)
     unordered_map<string, bool> paths;
     match_tree(tr, HOME, paths);
     check_untracked_files(paths, HOME);
+
+    cout << "\nStatus for staging area\n" << endl;
+
+    string file_path;
+    unordered_map<string, bool> paths1;
+
+    for (i = 0; i < INDEX.entries.size(); i++)
+    {
+      file_path = INDEX.entries[i].path;
+      paths1.insert(make_pair(file_path, true));
+      struct stat st;
+      if (stat(&file_path[0], &st) == 0)
+      {
+        if ((unsigned long)st.st_mtime == INDEX.entries[i].mtime)
+        {
+          continue;
+        }
+        else
+        {
+          printf("\033[0;31m"); //Set the text to the color red
+          cout << "Modified file: " << INDEX.entries[i].path << endl;
+          printf("\033[0m"); //Resets the text to default color
+        }
+      }
+      else
+      {
+        printf("\033[0;31m"); //Set the text to the color red
+        cout << "Deleted file: " << INDEX.entries[i].path << endl;
+        printf("\033[0m"); //Resets the text to default color
+
+      }
+
+    }
+
+    check_untracked_files(paths1, HOME);
   }
 }

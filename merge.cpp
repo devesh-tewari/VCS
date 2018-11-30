@@ -452,6 +452,12 @@ void bash_merge(Blob& cur, Blob& other, Blob& ca, Blob& new_blob)
 
 void merge(string other_branch, string HOME)
 {
+  if ( !match_commit_and_cwd(HOME) )
+  {
+    cout << "Working tree and commit do not match. Commit changes first\n";
+    exit (1);
+  }
+
   ifstream head (".vcs/HEAD");
   string head_str;
   getline(head, head_str);

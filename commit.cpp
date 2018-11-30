@@ -16,6 +16,7 @@ void add_to_map(string ,string ,IndexEntry& ,int );
 void match_commit (string ,string,string);
 void check_remainingFiles(string ,unordered_map <string,int> );
 void match_commit_and_cwd_util(string ,string ,string );
+bool match_commit_and_cwd(string);
 
 
 bool matched;
@@ -197,10 +198,6 @@ void commit(string HOME,string commit_msg)
     user = getpwuid(st.st_uid);
 
   Commit cm;
-  cm.tree_sha1 = build_tree(INDEX, HOME);
-
-  tm* cm_time = localtime(&cm.timestamp);
-  //cout << asctime(cm_time) << endl;
 
   ifstream head (".vcs/HEAD");
   string head_str;
@@ -210,6 +207,18 @@ void commit(string HOME,string commit_msg)
   ifstream branch_read (head_str);
   getline(branch_read, cm.parent_sha1);
   branch_read.close();
+
+  if (cm.parent_sha1 != "" && match_commit_and_cwd(HOME))
+  {
+    cout << "nothing to commit, working tree clean" << endl;
+    exit (1);
+  }
+
+  cm.tree_sha1 = build_tree(INDEX, HOME);
+
+  tm* cm_time = localtime(&cm.timestamp);
+  //cout << asctime(cm_time) << endl;
+
   cm.author=user->pw_name;
   cm.committer=user->pw_name;
   cm.message=commit_msg;
@@ -337,7 +346,7 @@ cout << "Merge committed" << endl;
 
 void check_remainingFiles(string d_path,unordered_map <string,int> m)
 {
-    
+
     int k=d_path.find_first_of("/");
     d_path=d_path.substr(k+1,d_path.size()-k-1);
     //cout <<"-------------"<<d_path<<"\n";
@@ -355,7 +364,7 @@ void check_remainingFiles(string d_path,unordered_map <string,int> m)
     while ((de = readdir(dr)) != NULL)
     {
       string file_path;
-      if(d_path.compare("."))  
+      if(d_path.compare("."))
         file_path = d_path + "/" + (de->d_name);
       else
         file_path = (de->d_name);
@@ -365,7 +374,7 @@ void check_remainingFiles(string d_path,unordered_map <string,int> m)
           //cout<<"remaining"<<file_path<<"\n";
           matched=false;
           return;
-      }    
+      }
     }
 }
 void match_commit_and_cwd_util(string treesha,string dir_path,string HOME)
@@ -384,14 +393,14 @@ void match_commit_and_cwd_util(string treesha,string dir_path,string HOME)
         m[path]=1;
         if (curr_tree.type[i] == false) //if its a blob
         {
-            
+
             //cout << path <<"\n";
             if (!file_existss(path))
             {
                 //cout <<path;
                 matched=false;
                 return;
-            } 
+            }
 
             struct stat st;
             stat(&path[0], &st);
@@ -401,7 +410,7 @@ void match_commit_and_cwd_util(string treesha,string dir_path,string HOME)
                 matched=false;
                 return;
             }
-            
+
         }
         else
         {
@@ -411,8 +420,8 @@ void match_commit_and_cwd_util(string treesha,string dir_path,string HOME)
 
     if(dir_path.compare(HOME)==0)   check_remainingFiles("/.",m);
     else check_remainingFiles(dir_path,m);
-    
-    
+
+
 
 }
 

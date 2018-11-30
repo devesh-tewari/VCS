@@ -217,6 +217,7 @@ int main(int argc, char **argv)
          << destination_sha << endl;
 
     reset(destination_sha, current_sha, option, HOME);
+    return 0;
     // devi_reset( destination_sha , current_sha ,  HOME);
   }
 
@@ -225,14 +226,14 @@ int main(int argc, char **argv)
     string destination_sha = argv[2];
     struct stat st;
     string index_path = HOME + "/.vcs/objects/" + destination_sha;
-    cout<<index_path<<endl;   
+    cout<<index_path<<endl;
     if (stat(&index_path[0], &st) != 0)
     {
       printf("\033[0;31m"); //Set the text to the color red
       cout << "Wrong destination sha.\n";
       printf("\033[0m"); //Resets the text to default color
 
-      return 1;
+      return 0;
     }
     Commit destination_commit;
     load_commit(destination_commit, destination_sha, HOME);
@@ -243,7 +244,7 @@ int main(int argc, char **argv)
       cout << "Cannot revert 1st commit.\n";
       printf("\033[0m"); //Resets the text to default color
 
-      return 1;
+      return 0;
     }
     ifstream head(".vcs/HEAD");
     string current_branch, current_sha;
@@ -260,6 +261,7 @@ int main(int argc, char **argv)
     cout << command << endl;
     system(command.c_str());
     commit(HOME, "revert commit");
+    return 0;
   }
 
 
@@ -327,6 +329,8 @@ int main(int argc, char **argv)
     }
 
     merge(other_branch, HOME);
+
+    return 0;
   }
 
   string c(argv[1]);

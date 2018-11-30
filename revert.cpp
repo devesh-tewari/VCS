@@ -10,12 +10,13 @@
 #include "reset.h"
 #include "delete.h"
 #include "create_files_after_reset.h"
+#include "commit.h"
 using namespace std;
 
 
 string patch1( string curr_blob_data, string parent_file_patch)
 {
-  cout<<"Patch"<<endl; 
+  cout<<"Patch"<<endl;
   string path1 = ".vcs/temp/data";
   string path2 = ".vcs/temp/patchfile.patch";
   ofstream file3(path1, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -40,10 +41,10 @@ string patch1( string curr_blob_data, string parent_file_patch)
     myfile.close();
   }
 
-  else cout << "Unable to open file"; 
+  else cout << "Unable to open file";
 
   return data;
-  
+
 }
 
 
@@ -71,7 +72,7 @@ void delete_tree_files_of_reverted_commit(string curr_sha, string parent_sha, st
           {
                 if(curr_tree.mtime[i] != parent_tree.mtime[itr_index])
                 {
-                 
+
                 }
 
           }
@@ -100,7 +101,7 @@ void delete_tree_files_of_reverted_commit(string curr_sha, string parent_sha, st
                   }
               }
           }
-      } 
+      }
   }
 }
 
@@ -119,7 +120,7 @@ void RevertUtil (string curr_sha,string parent_sha,string HOME)
           string parent_matched_sha=parent_tree.sha1_pointers[itr_index];
           if (curr_tree.type[i] == false)  //if its a blob
           {
-                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index]  
+                if(curr_tree.mtime[i] != parent_tree.mtime[itr_index]
                 && !parent_tree.is_binary_file[itr_index] )
                 {
                   string file_to_patch_path,output;
@@ -195,13 +196,19 @@ void RevertUtil (string curr_sha,string parent_sha,string HOME)
 //               revertUtil (curr_tree.sha1_pointers[i],parent_matched_sha,HOME);
 //           }
 //       }
-    
+
 //   }
 
 
 // }
 void revert( string destination_commit_sha, string current_commit_sha, string HOME)
 {
+    if ( !match_commit_and_cwd(HOME) )
+    {
+      cout << "Working tree and commit do not match. Commit changes first\n";
+      exit (1);
+    }
+
     string latest_commit_sha=current_commit_sha;
     Commit destination_commit;
     load_commit(destination_commit, destination_commit_sha, HOME);
