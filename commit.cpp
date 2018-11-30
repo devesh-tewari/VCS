@@ -94,11 +94,19 @@ string build_tree(Index &INDEX, string HOME)
               //cout << mtime << endl;
               tr.mtime.push_back( (long int)mtime );
               //cout << tr.mtime.size() << endl;
+
+              Blob bl1;
+              load_blob (bl1, results[2], HOME);
+              if (is_binary (bl1))
+                tr.is_binary_file.push_back (true);
+              else
+                tr.is_binary_file.push_back (false);
             }
             else
             {
               tr.type.push_back(true);
               tr.mtime.push_back( 0 );
+              tr.is_binary_file.push_back (false);
             }
         }
         k = depth[i].second.find_last_of("/");
@@ -106,7 +114,7 @@ string build_tree(Index &INDEX, string HOME)
         umap[parent] = umap[parent]
                        + to_string(tr.type_and_permissions) + " "
                        + "tree "
-                       + tr.sha1 + " " + depth[i].second
+                       + tr.sha1 + " " + depth[i].second +
                        + "\n";
 
         save_tree(tr, HOME);
@@ -207,7 +215,8 @@ void commit(string HOME,string commit_msg)
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1,HOME);
-    match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
+    if (cmparent.is_new_branch == false)
+      match_commit(cm.tree_sha1,cmparent.tree_sha1,HOME);
   }
 
 }
@@ -300,7 +309,8 @@ cout << "Merge committed" << endl;
   {
     Commit cmparent;
     load_commit(cmparent, cm.parent_sha1, HOME);
-    match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
+    if (cmparent.is_new_branch == false)
+      match_commit(cm.tree_sha1,cmparent.tree_sha1, HOME);
   }
 
 }

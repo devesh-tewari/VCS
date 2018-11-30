@@ -132,6 +132,9 @@ int type_and_permissions = srt.st_mode;
     //index_entry += bl.sha1 + " ";
     //index_entry += source + "\t";  //save only path from vcs root
     entry.mtime = (unsigned long)srt.st_mtime;
+
+    if (is_binary (bl))
+      entry.is_binary_file = true;
     //unsigned long last_modified = (unsigned long)srt.st_mtime;
     //index_entry += to_string(last_modified); //also store file versions in three places (if required later)
 

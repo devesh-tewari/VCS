@@ -1,10 +1,17 @@
-#include <bits/stdc++.h>
-#include "delete.h" 
+#include <stdio.h>
+#include <string>
+#include "objects.h"
 using namespace std;
 
-int main()
+bool is_binary (Blob& bl)
 {
-cout<<"hello\n";
-string path="Tarun/hudna.txt";
-delinit(path);
+  bool flag = false;
+  for (int i = 0; i < bl.data.size(); i *= 4)
+  {
+    if (!isascii (s[i]))
+    {
+      flag = true;
+    }
+  }
+  return flag;
 }

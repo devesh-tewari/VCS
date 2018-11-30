@@ -44,7 +44,7 @@ public:
   vector<string> pointer_perm;
   vector<long int> mtime;
   vector<bool> type; // 0 for blob and 1 for tree
-  vector<bool> is_binary;
+  vector<bool> is_binary_file;
 
   Tree() {}
 
@@ -96,8 +96,12 @@ public:
   string sha1;
   string path;
   unsigned long int mtime;
+  bool is_binary_file;
 
-  IndexEntry() {}
+  IndexEntry()
+  {
+    this->is_binary_file = false;
+  }
 
 template <class Archive>
   void serialize( Archive & ar )
@@ -129,5 +133,7 @@ void get_blob_sha1(Blob&);
 string get_string_sha1(string);
 
 int set_time_and_permissions(int, int);
+
+bool is_binary (Blob&);
 
 #endif

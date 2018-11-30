@@ -332,7 +332,7 @@ void show_available_commands ()
   cout << "\tstatus\t\tShow the working tree status\n\n";
 
   cout << "grow, mark and tweak your common history\n";
-  cout << "\tcheckout\tSwitch branch or crate new branch\n";
+  cout << "\tcheckout\tSwitch branch or create new branch\n";
   cout << "\tcommit\t\tRecord changes to the repository\n";
   cout << "\tdiff\t\tShow changes between index, commit and working tree\n";
   cout << "\tmerge\t\tJoin two or more development histories together\n";

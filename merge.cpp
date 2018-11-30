@@ -421,12 +421,12 @@ void bash_merge(Blob& cur, Blob& other, Blob& ca, Blob& new_blob)
   string path1 = ".vcs/temp/merge1";
   string path1 = ".vcs/temp/merge2";
   string path3 = ".vcs/temp/merge3";
-  string output_path = ".vcs/temp/merge_op";
+  string op_path = ".vcs/temp/merge_op";
 
   ofstream file1(path1, std::ios::binary | std::ios::out | std::ios::trunc);
   ofstream file2(path2, std::ios::binary | std::ios::out | std::ios::trunc);
   ofstream file3(path3, std::ios::binary | std::ios::out | std::ios::trunc);
-  ofstream file4(output_path, std::ios::binary | std::ios::out | std::ios::trunc);
+  ofstream file4(op_path, std::ios::binary | std::ios::out | std::ios::trunc);
 
   file4.close ();
 
@@ -537,6 +537,7 @@ void merge_files(Tree& t1, Tree& t2, Tree& t3, Tree& t4, string HOME)
     t4.type.push_back(t1.type[i]);
     t4.pointer_paths.push_back(t1.pointer_paths[i]);
     t4.pointer_perm.push_back(t1.pointer_perm[i]);
+    t4.is_binary_file.push_back (t1.is_binary_file[i]);
 
     auto itr2 = find(t2.pointer_paths.begin(), t2.pointer_paths.end(), t1.pointer_paths[i]);
     auto itr3 = find(t3.pointer_paths.begin(), t3.pointer_paths.end(), t1.pointer_paths[i]);
@@ -669,6 +670,7 @@ void add_files_not_in_t1(Tree& t1, Tree& t2, Tree& t4, string HOME)
           t4.pointer_paths.push_back(t2.pointer_paths[i]);
           t4.pointer_perm.push_back(t2.pointer_perm[i]);
           t4.mtime.push_back (t2.mtime[i]);
+          t4.is_binary_file.push_back (t2.is_binary_file[i]);
 
           int itr_index = itr - t1.pointer_paths.begin();
           //string parent_matched_path = *itr;
