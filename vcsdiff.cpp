@@ -94,7 +94,7 @@ void vcsdiff_cached(string HOME)
     }
     else
     {
-        cout << "nothing added in stagging" << endl;
+        cout << "nothing added in staging" << endl;
         return;
     }
 
@@ -130,7 +130,7 @@ void vcsdiff_cached(string HOME)
     for (auto itr = paths.begin(); itr != paths.end(); ++itr)
     {
         if(itr->second.compare("")!=0)
-        cout << itr->first << " new file added in stagging\n";
+        cout << itr->first << " new file added in staging\n";
     }
 }
 
@@ -169,7 +169,7 @@ void match_commit_stagging(string treesha, unordered_map<string, string> &paths,
             }
             else
             {
-                cout << curr_tree.pointer_paths[i] << " absent in stagging\n";
+                cout << curr_tree.pointer_paths[i] << " absent in staging\n";
             }
         }
         else
