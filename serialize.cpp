@@ -9,7 +9,7 @@
 #include <fstream>
 using namespace std;
 
-void save_blob(Blob bl, string HOME)
+void save_blob(Blob& bl, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + bl.sha1;
     ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -27,7 +27,7 @@ void load_blob(Blob &bl, string sha, string HOME)
     is.close();
 }
 
-void save_tree(Tree tr, string HOME)
+void save_tree(Tree& tr, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + tr.sha1;
     ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -45,7 +45,7 @@ void load_tree(Tree &tr, string sha, string HOME)
     is.close();
 }
 
-void save_commit(Commit cm, string HOME)
+void save_commit(Commit& cm, string HOME)
 {
     string path = HOME + "/.vcs/objects/" + cm.sha1;
     ofstream os(path, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -63,7 +63,7 @@ void load_commit(Commit &cm, string sha, string HOME)
     is.close();
 }
 
-void save_index(Index INDEX, string HOME)
+void save_index(Index &INDEX, string HOME)
 {
     string path = HOME + "/.vcs/INDEX";
     std::ofstream os(path, std::ios::binary | std::ios::out);

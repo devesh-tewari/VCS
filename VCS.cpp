@@ -14,10 +14,15 @@
 #include <unistd.h>
 #include <stdio.h>
 
+void show_available_commands (void);
+
 int main(int argc, char** argv)
 {
   if(argc == 1)
+  {
+    show_available_commands ();
     return 0;
+  }
 
   char H[PATH_MAX];
   getcwd(H, PATH_MAX);
@@ -214,7 +219,7 @@ cout << "add: " << add_file << endl;
   if(strcmp(argv[1], "revert") == 0)
   {
 
-    
+
     string destination_sha = argv[2];
     cout<<"Reached in VCS.cpp \n";
 
@@ -266,13 +271,18 @@ cout << "add: " << add_file << endl;
     getline (head, head_str);
     head.close ();
 
+    ifstream branch_read (head_str);
+    string current_sha;
+    getline(branch_read, current_sha);
+    branch_read.close ();
+
+    Commit cur_commit;
+    load_commit (cur_commit, current_sha, HOME);
+    cur_commit.is_new_branch = true;
+    save_commit (cur_commit, HOME);
+
     if (argc == 4)
     {
-      ifstream branch_read (head_str);
-      string current_sha;
-      getline(branch_read, current_sha);
-      branch_read.close ();
-
       ofstream new_branch (branch_path, ios::out);
       new_branch << current_sha;
       new_branch.close ();
@@ -298,5 +308,32 @@ cout << "add: " << add_file << endl;
     merge (other_branch, HOME);
   }
 
+  string c(argv[1]);
+  cout << "vcs: '" + c + "' is not a vcs command." << endl;
   return 0;
+}
+
+
+void show_available_commands ()
+{
+  cout << "usage: vcs [<options>] <command> [<args>]\n\n";
+  cout << "These are common VCS commands used in various situations:\n\n";
+
+  cout << "start a working area\n";
+  cout << "\tinit\t\tCreate an empty VCS repository\n\n";
+
+  cout << "work on the current change\n";
+  cout << "\tadd\t\tAdd file contents to the index\n";
+  cout << "\treset\t\tReset HEAD to the specified state or clear index\n";
+  cout << "\trevert\t\tRevert Changes made on a perticular commit\n\n";
+
+  cout << "examine the history and state\n";
+  cout << "\tlog\t\tShow commit logs\n";
+  cout << "\tstatus\t\tShow the working tree status\n\n";
+
+  cout << "grow, mark and tweak your common history\n";
+  cout << "\tcheckout\tSwitch branch or crate new branch\n";
+  cout << "\tcommit\t\tRecord changes to the repository\n";
+  cout << "\tdiff\t\tShow changes between index, commit and working tree\n";
+  cout << "\tmerge\t\tJoin two or more development histories together\n";
 }
