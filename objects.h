@@ -57,7 +57,8 @@ public:
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(name, type_and_permissions, sha1, sha1_pointers, pointer_paths, pointer_perm, mtime, type);
+    ar (name, type_and_permissions, sha1, sha1_pointers, pointer_paths,
+        pointer_perm, mtime, type, is_binary_file);
   }
 };
 
@@ -85,7 +86,8 @@ public:
   template <class Archive>
   void serialize( Archive & ar )
   {
-    ar(sha1, tree_sha1, parent_sha1, author, committer, timestamp, message);
+    ar (sha1, tree_sha1, parent_sha1, author, committer, timestamp, message,
+        is_new_branch);
   }
 };
 
